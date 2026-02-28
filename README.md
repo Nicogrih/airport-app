@@ -115,26 +115,23 @@ Luego abre:
 
 ## Flujo de trabajo con Git (equipo de 3)
 
-### Reglas
-- `main` debe mantenerse **estable** (debe correr).
-- Cada feature se desarrolla en una **branch** y se integra con Pull Request.
-- Mensajes de commit en **español**.
+- Ramas: `main` = estable, `dev` = integración, `feature/...` = por funcionalidad.
 
-### Crear una branch de feature
-```bash
-git checkout main
-git pull
-git checkout -b feature/nombre-feature
-```
+Pasos rápidos:
+1. Partir siempre desde `dev`:
+   - git checkout dev && git pull
+   - Evita divergencias grandes.
+2. Crear la rama de feature desde `dev`:
+   - git checkout -b feature/nombre
+3. Trabajar, commitear y pushear normalmente:
+   - git add . && git commit -m "Mensaje en español" && git push -u origin feature/nombre
+4. Mantener la rama actualizada con `dev` periódicamente:
+   - git checkout dev && git pull
+   - git checkout feature/nombre && git merge dev (resolver conflictos si los hay)
+5. Cuando esté lista la feature → abrir PR desde `feature/...` hacia `dev` y exigir revisión.
+   - Solo merge a `main` cuando `dev` esté estable y probado.
 
-### Subir cambios
-```bash
-git add .
-git commit -m "Describe el cambio en español"
-git push -u origin feature/nombre-feature
-```
-
-Luego abrir un **Pull Request** hacia `main` desde GitHub.
+Regla clave: PRs a `dev` (nunca directo a `main`). Commits en español.
 
 ---
 
