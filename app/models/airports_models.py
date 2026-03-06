@@ -12,4 +12,4 @@ class Airport(Base):
     code = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
     country = Column(String, nullable=False)
-    created_ad = Column(DateTime(timezone=True), server_default= func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default= func.now(), nullable=False)

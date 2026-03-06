@@ -1,88 +1,110 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List
-import uuid
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.database import SessionLocal, get_db
-from models.airports_models import Airport
-from schemas.airports_schema import AirportCreate, AirportResponse, AirportUpdate
+from app.database.database import get_db
+from app.models.airports_models import Airport
+from app.schemas.airports_schema import AirportCreate, AirportResponse, AirportUpdate
 
-router = APIRouter(
-    prefix="/airports",
-    tags=["Airports"]
-)
+router = APIRouter(prefix="/airports", tags=["Airports"])
 
-#CREAR(POST)
-@router.post("/",response_model=AirportResponse)
-def crear_airport(airport:AirportCreate, db:Session=Depends(get_db)):
+# LISTAR (GET)
+@router.get("", response_model=list[AirportResponse])
+async def listar_airports(
+    db: AsyncSession = Depends(get_db)
+) -> list[AirportResponse]:
+    """Obtiene la lista de todos los aeropuertos."""
+    result = await db.execute(select(Airport))
+    return list(result.scalars().all())
 
-    existe = db.query(Airport).filter(Airport.code == airport.code).first()
+
+# LISTAR POR ID (GET)
+@router.get("/{airport_id}", response_model=AirportResponse)
+async def obtener_airport(
+    airport_id: UUID, db: AsyncSession = Depends(get_db)
+) -> Airport:
+    """Obtiene un aeropuerto específico por su UUID."""
+    airport = await db.get(Airport, airport_id)
+    
+    if not airport:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airport no encontrado"
+        )
+    return airport
+
+
+# CREAR (POST)
+@router.post("", response_model=AirportResponse, status_code=status.HTTP_201_CREATED)
+async def crear_airport(
+    payload: AirportCreate, db: AsyncSession = Depends(get_db)
+) -> Airport:
+    """Crea un nuevo aeropuerto verificando que el código sea único."""
+    # Verificar existencia previa por código
+    result = await db.execute(select(Airport).filter(Airport.code == payload.code))
+    existe = result.scalars().first()
 
     if existe:
-        raise HTTPException(status_code=400, detail="El código del Aeropuerto ya existe")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="El código del Aeropuerto ya existe"
+        )
     
     nuevo_airport = Airport(
-        code = airport.code,
-        name = airport.name,
-        country = airport.country
+        code=payload.code,
+        name=payload.name,
+        country=payload.country
     )
 
     db.add(nuevo_airport)
-    db.commit()
-    db.refresh(nuevo_airport)
-
+    await db.commit()
+    await db.refresh(nuevo_airport)
     return nuevo_airport
 
-#LISTAR(GET)
-@router.get("/",response_model=list[AirportResponse])
-def listar_airport(db:Session=Depends(get_db)):
-    return db.query(Airport).all()
 
-#LISTAR POR ID(GET)
-@router.get("/{airport_id}",response_model=AirportResponse)
-def obtener_airport(airport_id:uuid.UUID,db:Session=Depends(get_db)):
-    
-    airport = db.query(Airport).filter(Airport.id == airport_id).first()
+# ACTUALIZAR (PUT)
+@router.put("/{airport_id}", response_model=AirportResponse)
+async def actualizar_airport(
+    airport_id: UUID, payload: AirportUpdate, db: AsyncSession = Depends(get_db)
+) -> Airport:
+    """Actualiza los datos de un aeropuerto existente."""
+    airport = await db.get(Airport, airport_id)
 
     if not airport:
-        raise HTTPException(status_code=404, detail="Airport no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airport no encontrado"
+        )
     
+    # Actualización parcial
+    if payload.code is not None:
+        airport.code = payload.code
+    if payload.name is not None:
+        airport.name = payload.name
+    if payload.country is not None:
+        airport.country = payload.country
+
+    await db.commit()
+    await db.refresh(airport)
     return airport
 
-#ACTUALIZAR(PUT)
-@router.put("/{airport_id}",response_model=AirportResponse)
-def actualizar_airport(airport_id:uuid.UUID, data:AirportUpdate,db:Session=Depends(get_db)):
 
-    airport = db.query(Airport).filter(Airport.id == airport_id).first()
-
-    if not airport:
-        raise HTTPException(status_code=404, detail="Airport no encontrado")
-    
-    if data.code is not None:
-        airport.code = data.code
-
-    if data.name is not None:
-        airport.name = data.name
-
-    if data.country is not None:
-        airport.country = data.country
-
-    db.commit()
-    db.refresh(airport)
-
-    return airport
-
-#ELIMINAR(DELETED)
-@router.delete("/{airport_id}")
-def eliminar_airport(airport_id: uuid.UUID, db: Session = Depends(get_db)):
-
-    airport = db.query(Airport).filter(Airport.id == airport_id).first()
+# ELIMINAR (DELETE)
+@router.delete("/{airport_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def eliminar_airport(
+    airport_id: UUID, db: AsyncSession = Depends(get_db)
+) -> None:
+    """Elimina un aeropuerto de la base de datos."""
+    airport = await db.get(Airport, airport_id)
 
     if not airport:
-        raise HTTPException(status_code=404, detail="Airport no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airport no encontrado"
+        )
 
-    db.delete(airport)
-    db.commit()
-
-    return {"message": "Airport Eliminado"}
+    await db.delete(airport)
+    await db.commit()
+    return None
     

@@ -1,82 +1,100 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List
-import uuid
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.database import SessionLocal, get_db
-from models.airlines_models import Airline
-from schemas.airlines_schema import AirlineCreate,AirlineResponse,AirlineUpdate
+from app.database.database import get_db
+from app.models.airlines_models import Airline
+from app.schemas.airlines_schema import AirlineCreate, AirlineResponse, AirlineUpdate
 
-router = APIRouter(
-    prefix="/airlines",
-    tags=["Airlines"]
-)
+router = APIRouter(prefix="/airlines", tags=["Airlines"])
 
-#CREAR
-@router.post("/", response_model=AirlineResponse)
-def crear_airline(airline:AirlineCreate, db:Session=Depends(get_db)):
+@router.get("", response_model=list[AirlineResponse])
+async def listar_airlines(
+    db: AsyncSession = Depends(get_db)
+) -> list[AirlineResponse]:
+    result = await db.execute(select(Airline))
+    return list(result.scalars().all())
 
-    existe = db.query(Airline).filter(Airline.code == airline.code).first()
+
+@router.get("/{airline_id}", response_model=AirlineResponse)
+async def obtener_airline(
+    airline_id: UUID, db: AsyncSession = Depends(get_db)
+) -> Airline:
+    """Obtiene una aerolínea por su UUID."""
+    airline = await db.get(Airline, airline_id)
+    
+    if not airline:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airline no encontrada"
+        )
+    return airline
+
+
+@router.post("", response_model=AirlineResponse, status_code=status.HTTP_201_CREATED)
+async def crear_airline(
+    payload: AirlineCreate, db: AsyncSession = Depends(get_db)
+) -> Airline:
+    """Crea una nueva aerolínea verificando que el código sea único."""
+    # Verificar si ya existe el código
+    result = await db.execute(select(Airline).filter(Airline.code == payload.code))
+    existe = result.scalars().first()
+    
     if existe:
-        raise HTTPException(status_code=400, detail="El código de la aerolinea ya existe")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="El código de la aerolinea ya existe"
+        )
 
     nueva_airline = Airline(
-        code = airline.code,
-        name = airline.name
+        code=payload.code,
+        name=payload.name
     )
-
+    
     db.add(nueva_airline)
-    db.refresh()
-    db.commit(nueva_airline)
-
+    await db.commit()
+    await db.refresh(nueva_airline)
     return nueva_airline
 
-#LISTAR
-@router.get("/", response_model = list[AirlineResponse])
-def listar_airline(db:Session = Depends(get_db)):
-    return db.query(Airline).all()
 
-#LISTAR POR ID
-@router.get("/{airline_id}",response_model=AirlineResponse)
-def obtener_airline(airline_id: uuid.UUID, db:Session = Depends(get_db)):
-
-    airline = db.query(Airline).filter(Airline.id == airline_id).first()
-
-    if not airline:
-        raise HTTPException(status_code=404, detail="Airline no encontrada")
+@router.put("/{airline_id}", response_model=AirlineResponse)
+async def actualizar_airline(
+    airline_id: UUID, payload: AirlineUpdate, db: AsyncSession = Depends(get_db)
+) -> Airline:
+    """Actualiza una aerolínea existente."""
+    airline = await db.get(Airline, airline_id)
     
+    if not airline:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airline no encontrada"
+        )
+
+    # Actualización parcial (solo campos enviados)
+    if payload.code is not None:
+        airline.code = payload.code
+    if payload.name is not None:
+        airline.name = payload.name
+
+    await db.commit()
+    await db.refresh(airline)
     return airline
 
-#ACTUALIZAR POR ID
-@router.put("/{airline_id}",response_model=AirlineResponse)
-def actualizar_airline(airline_id:uuid.UUID, data : AirlineUpdate,db:Session = Depends(get_db)):
 
-    airline = db.query(Airline).filter(Airline.id == airline_id).first()
-
-    if not airline:
-        raise HTTPException(status_code=404, detail="Airline no encontrada")
+@router.delete("/{airline_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def eliminar_airline(
+    airline_id: UUID, db: AsyncSession = Depends(get_db)
+) -> None:
+    """Elimina una aerolínea."""
+    airline = await db.get(Airline, airline_id)
     
-    if data.code is not None:
-        airline.code = data.code
-
-    if data.name is not None:
-        airline.name = data.name
-
-    db.commit()
-    db.refresh(airline)
-
-    return airline
-
-#ELIMINAR POR ID
-@router.delete("/{airline_id}")
-def eliminar_airline(airline_id: uuid.UUID, db: Session = Depends(get_db)):
-
-    airline = db.query(Airline).filter(Airline.id == airline_id).first()
-
     if not airline:
-        raise HTTPException(status_code=404, detail="Airline no encontrada")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Airline no encontrada"
+        )
 
-    db.delete(airline)
-    db.commit()
-
-    return {"message": "Airline eliminada"}
+    await db.delete(airline)
+    await db.commit()
+    return None
