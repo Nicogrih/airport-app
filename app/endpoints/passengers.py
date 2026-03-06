@@ -10,7 +10,7 @@ from app.schemas.passengers import (
     PassengerUpdate
 )
 
-router = APIRouter(prefix="/passengers", tags=["Passengers"])
+router = APIRouter(prefix="/api/passengers", tags=["passengers"])
 
 #CREAR
 @router.post("/", response_model=PassengerResponse)

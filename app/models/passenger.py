@@ -12,7 +12,7 @@ class Passenger(Base):
 
     reservation_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("reservation.id", ondelete="CASCADE"),
+        ForeignKey("reservations.id", ondelete="CASCADE"),
         nullable=False
     )
 

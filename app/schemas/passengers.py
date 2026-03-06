@@ -16,7 +16,7 @@ class PassengerUpdate(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     document_number: str | None = None
-    birth_date: str | None = None
+    birth_date: date | None = None
 
 class PassengerResponse(PassengerBase):
     id: UUID

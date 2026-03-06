@@ -10,7 +10,7 @@ from app.schemas.flights import (
     FlightUpdate
 )
 
-router = APIRouter(prefix="/flights", tags=["Flights"])
+router = APIRouter(prefix="/api/flights", tags=["flights"])
 
 #CREAR
 @router.post("/", response_model=FlightResponse)
