@@ -11,6 +11,9 @@ class FlightBase(BaseModel):
     arrival_at: datetime
     status: str = "SCHEDULED"
 
+class FlightCreate(FlightBase):
+    pass
+
 class FlightUpdate(BaseModel):
     flight_number: str | None = None
     departure_at: datetime | None = None
