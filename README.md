@@ -5,7 +5,8 @@ Proyecto académico para un sistema de reservas de vuelos.
 - **Backend:** Python + FastAPI
 - **Servidor:** Uvicorn
 - **Base de datos:** Neon (PostgreSQL)
-- **Menú por consola:** CRUD consumiendo la API por HTTP
+- **ORM/Driver:** SQLAlchemy (async) + asyncpg
+- **Menú por consola:** CRUD consumiendo la API por HTTP (httpx)
 - **Equipo:** 3 personas (Windows + VS Code)
 - **Convenciones:** commits en **español**, código/estructuras en **inglés**.
 
@@ -16,6 +17,21 @@ Proyecto académico para un sistema de reservas de vuelos.
 - Ángel David Gutiérrez Ladino
 - Gerardo Andrés Jiménez Piedrahíta
 - Nicolás Josué Grijalba Huertas
+
+---
+
+## Entidades y contrato de API
+
+Entidades (CRUD):
+
+- `users` → `/api/users`
+- `reservations` → `/api/reservations`
+- `airlines` → `/api/airlines`
+- `airports` → `/api/airports`
+- `flights` → `/api/flights`
+- `passengers` → `/api/passengers`
+
+> Todas las rutas están bajo el prefijo `/api/...`.
 
 ---
 
@@ -89,13 +105,30 @@ Este proyecto usa un archivo `.env` **local** (no se sube al repositorio).
 2. Agrega al menos:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME?sslmode=require
+DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME
 ```
 
 - `DATABASE_URL`: se obtiene desde Neon.
-- Importante: debe estar en formato SQLAlchemy async (**postgresql+asyncpg**) y en Neon normalmente se requiere `sslmode=require`.
 
-> También se recomienda crear `.env.example` para documentar las variables sin credenciales.
+### SSL en Neon (IMPORTANTE)
+
+En este proyecto el SSL se fuerza desde el código en `app/database/session.py` mediante:
+
+```python
+connect_args={"ssl": "require"}
+```
+
+Por eso el `DATABASE_URL` del `.env` **no necesita** `?sslmode=require`.
+
+### `API_BASE_URL` (opcional)
+
+El menú CLI permite configurar una URL base para consumir la API:
+
+```env
+API_BASE_URL=http://127.0.0.1:8000
+```
+
+Si no la defines, por defecto usa `http://127.0.0.1:8000`.
 
 ---
 
