@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/airports", tags=["airports"])
 @router.get("", response_model=list[AirportResponse])
 async def listar_airports(
     db: AsyncSession = Depends(get_db)
-) -> list[AirportResponse]:
+) -> list[Airport]:
     """Obtiene la lista de todos los aeropuertos."""
     result = await db.execute(select(Airport))
     return list(result.scalars().all())

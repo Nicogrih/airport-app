@@ -2,13 +2,13 @@ from typing import Any
 
 from app.crud.http_client import APIClient
 
-def list_airlines(client:APIClient) -> list[dict[str, any]]:
+def list_airlines(client:APIClient) -> list[dict[str, Any]]:
     """lista de todas la aerolineas"""
     r = client.get("/api/airlines")
     r.raise_for_status()
     return r.json()
 
-def get_airline(client:APIClient, airline_id :str) ->list[dict[str, any]]:
+def get_airline(client:APIClient, airline_id :str) ->list[dict[str, Any]]:
     r = client.get(f"/api/airlines/{airline_id}")
     r.raise_for_status()
     return r.json()

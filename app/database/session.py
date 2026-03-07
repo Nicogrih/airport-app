@@ -28,4 +28,10 @@ class Base(DeclarativeBase):
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
+<<<<<<< HEAD
         yield session
+=======
+        yield session
+
+
+>>>>>>> bc9d0620e4b0a2a296ea9fb71e9c13fef193514e
