@@ -1,10 +1,9 @@
 from typing import Any
-
 from app.crud.http_client import APIClient
 
 
 def list_passengers(client: APIClient) -> list[dict[str, Any]]:
-    r = client.get("/api/passengers/")
+    r = client.get("/api/passengers")
     r.raise_for_status()
     return r.json()
 
@@ -18,7 +17,7 @@ def get_passenger(client: APIClient, passenger_id: str) -> dict[str, Any]:
 def create_passenger(
     client: APIClient, payload: dict[str, Any]
 ) -> dict[str, Any]:
-    r = client.post("/api/passengers/", json=payload)
+    r = client.post("/api/passengers", json=payload)
     r.raise_for_status()
     return r.json()
 
