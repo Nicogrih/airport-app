@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/users", tags=["users"])
 
 
 @router.get("", response_model=list[UserRead])
-async def list_users(db: AsyncSession = Depends(get_db)) -> list[UserRead]:
+async def list_users(db: AsyncSession = Depends(get_db)) -> list[User]:
     result = await db.execute(select(User).order_by(User.created_at.desc()))
 
     return list(result.scalars().all())
@@ -42,7 +42,9 @@ async def create_user(payload: UserCreate, db: AsyncSession = Depends(get_db)) -
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=409, detail="Email already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
+        )
     await db.refresh(user)
 
     return user
@@ -75,6 +77,7 @@ async def update_user(
             status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
         )
 
+    await db.refresh(user)
     return user
 
 

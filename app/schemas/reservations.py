@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ReservationCreate(BaseModel):
     user_id: UUID
     status: str | None = Field(
-        default="HOLD", pattern="^(HOLD|CONFIRMED|CANCELLED|EXPIRED)$"
+        default="HOLD", pattern="^(HOLD|CONFIRMED|CANCELED|EXPIRED)$"
     )
     total_amount_cop: int | None = Field(default=0, ge=0)
 
@@ -15,7 +15,7 @@ class ReservationCreate(BaseModel):
 class ReservationUpdate(BaseModel):
     user_id: UUID | None = None
     status: str | None = Field(
-        default=None, pattern="^(HOLD|CONFIRMED|CANCELLED|EXPIRED)$"
+        default=None, pattern="^(HOLD|CONFIRMED|CANCELED|EXPIRED)$"
     )
     total_amount_cop: int | None = Field(default=None, ge=0)
 
