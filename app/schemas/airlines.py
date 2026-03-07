@@ -16,7 +16,7 @@ class AirlineResponse(AirlineBase):
     id : UUID
     created_at : datetime
 
-    class config:
+    class Config:
         from_attributes = True
 
 #Para actualizar(PUT)

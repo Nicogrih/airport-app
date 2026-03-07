@@ -1,4 +1,4 @@
-from app.crud.httpx_client import APIClient
+from app.crud.http_client import APIClient
 from typing import Any
 import httpx
 
@@ -33,23 +33,23 @@ def airlines_menu(client:APIClient)->None:
     while True:
         print("=== AIRLINES ===")
         print("1) Listar")
-        print("2) Ver Airline(UUID)")
+        print("2) Ver Aerolínea(UUID)")
         print("3) Crear")
         print("4) Actualizar")
         print("5) Eliminar")
-        print("6) Volver")
+        print("0) Volver")
         op = input("Opcion: ").strip()
         try:
-            if op == 1:
+            if op == "1":
                 _print_json(list_airlines(client))
-            elif op == 2:
+            elif op == "2":
                 airl_id = input("UUID: ").strip()
                 _print_json(get_airline(client, airl_id))
-            elif op == 3:
+            elif op == "3":
                 code = input("Código: ").strip()
                 name = input("Nombre de la Aerolínea: ").strip()
                 _print_json(create_airline(client,{"code":code, "name": name}))
-            elif op == 4:
+            elif op == "4":
                 airl_id= input("UUID: ").strip()
                 print("Deja vacío para no modificar un campo.")
                 code = input("Código (IATA): ").strip() or None
@@ -60,24 +60,24 @@ def airlines_menu(client:APIClient)->None:
                     if v is not None
                 }
                 _print_json(update_airline(client, airl_id, payload))
-            elif op == 5:
+            elif op == "5":
                 airl_id = input("UUID: ").strip()
                 delete_airline(client, airl_id)
                 print("\nEliminado.\n")
-            elif op == 0:
+            elif op == "0":
                 return
         except Exception as exc:
             _handle_error(exc)
 
 def airports_menu(client:APIClient)->None:
     while True:
-        print("=== AIRLINES ===")
+        print("=== AIRPORTS ===")
         print("1) Listar")
-        print("2) Ver Airport(UUID)")
+        print("2) Ver Aeropuerto(UUID)")
         print("3) Crear")
         print("4) Actualizar")
         print("5) Eliminar")
-        print("6) Volver")
+        print("0) Volver")
         op = input("Opcion: ").strip()
         try:
             if op == "1":

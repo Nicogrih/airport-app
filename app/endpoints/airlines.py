@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.database import get_db
-from app.models.airlines_models import Airline
-from app.schemas.airlines_schema import AirlineCreate, AirlineResponse, AirlineUpdate
+from app.database.session import get_db
+from app.models.airlines import Airline
+from app.schemas.airlines import AirlineCreate, AirlineResponse, AirlineUpdate
 
-router = APIRouter(prefix="/airlines", tags=["Airlines"])
+router = APIRouter(prefix="/api/airlines", tags=["airlines"])
 
 @router.get("", response_model=list[AirlineResponse])
 async def listar_airlines(

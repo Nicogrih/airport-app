@@ -1,6 +1,6 @@
 import os
 
-from app.crud.httpx_client import APIClient
+from app.crud.http_client import APIClient
 from app.crud.menu_airlines_airports import airlines_menu, airports_menu
 
 def main() -> None:

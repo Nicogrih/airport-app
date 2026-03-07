@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.database import get_db
-from app.models.airports_models import Airport
-from app.schemas.airports_schema import AirportCreate, AirportResponse, AirportUpdate
+from app.database.session import get_db
+from app.models.airports import Airport
+from app.schemas.airports import AirportCreate, AirportResponse, AirportUpdate
 
-router = APIRouter(prefix="/airports", tags=["Airports"])
+router = APIRouter(prefix="/api/airports", tags=["airports"])
 
 # LISTAR (GET)
 @router.get("", response_model=list[AirportResponse])
