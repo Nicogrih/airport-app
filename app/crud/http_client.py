@@ -17,4 +17,8 @@ class APIClient:
         return httpx.put(f"{self.base_url}{path}", json=json, timeout=10)
 
     def delete(self, path: str) -> httpx.Response:
+<<<<<<< HEAD
         return httpx.delete(f"{self.base_url}{path}", timeout=10)
+=======
+        return httpx.delete(f"{self.base_url}{path}", timeout=10)
+>>>>>>> feat-dev/users-reservations-vertical

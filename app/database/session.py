@@ -29,6 +29,7 @@ class Base(DeclarativeBase):
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
+<<<<<<< HEAD
 
 
 async def db_ping() -> bool:
@@ -44,3 +45,5 @@ async def db_ping() -> bool:
         return True
     except Exception:
         return False
+=======
+>>>>>>> feat-dev/users-reservations-vertical
