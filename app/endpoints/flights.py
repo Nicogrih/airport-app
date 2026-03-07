@@ -13,7 +13,7 @@ from app.schemas.flights import (
 router = APIRouter(prefix="/api/flights", tags=["flights"])
 
 #CREAR
-@router.post("/", response_model=FlightResponse)
+@router.post("", response_model=FlightResponse)
 async def create_flight(
     flight: FlightCreate,
     db: AsyncSession = Depends(get_db)
@@ -27,7 +27,7 @@ async def create_flight(
     return new_flight
 
 #LISTAR TODOS
-@router.get("/", response_model=list[FlightResponse])
+@router.get("", response_model=list[FlightResponse])
 async def get_flights(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Flight))
     return result.scalars().all()

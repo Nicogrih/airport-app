@@ -4,7 +4,7 @@ from app.crud.http_client import APIClient
 
 
 def list_flights(client: APIClient) -> list[dict[str, Any]]:
-    r = client.get("/api/flights")
+    r = client.get("/api/flights/")
     r.raise_for_status()
     return r.json()
 
@@ -16,7 +16,7 @@ def get_flight(client: APIClient, flight_id: str) -> dict[str, Any]:
 
 
 def create_flight(client: APIClient, payload: dict[str, Any]) -> dict[str, Any]:
-    r = client.post("/api/flights", json=payload)
+    r = client.post("/api/flights/", json=payload)
     r.raise_for_status()
     return r.json()
 

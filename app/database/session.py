@@ -29,21 +29,3 @@ class Base(DeclarativeBase):
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
-<<<<<<< HEAD
-
-
-async def db_ping() -> bool:
-    """
-    Verifica conectividad básica contra la DB ejecutando SELECT 1.
-
-    Returns:
-        bool: True si la DB responde, False si falla.
-    """
-    try:
-        async with AsyncSessionLocal() as session:
-            await session.execute(text("SELECT 1"))
-        return True
-    except Exception:
-        return False
-=======
->>>>>>> feat-dev/users-reservations-vertical

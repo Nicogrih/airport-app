@@ -13,7 +13,7 @@ from app.schemas.passengers import (
 router = APIRouter(prefix="/api/passengers", tags=["passengers"])
 
 #CREAR
-@router.post("/", response_model=PassengerResponse)
+@router.post("", response_model=PassengerResponse)
 async def create_passenger(
     passenger: PassengerCreate,
     db: AsyncSession = Depends(get_db)
@@ -27,7 +27,7 @@ async def create_passenger(
     return new_passenger
 
 #LISTAR TODOS
-@router.get("/", response_model=list[PassengerResponse])
+@router.get("", response_model=list[PassengerResponse])
 async def get_passengers(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Passenger))
     return result.scalars().all()
