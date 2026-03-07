@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/airlines", tags=["airlines"])
 @router.get("", response_model=list[AirlineResponse])
 async def listar_airlines(
     db: AsyncSession = Depends(get_db)
-) -> list[AirlineResponse]:
+) -> list[Airline]:
     result = await db.execute(select(Airline))
     return list(result.scalars().all())
 

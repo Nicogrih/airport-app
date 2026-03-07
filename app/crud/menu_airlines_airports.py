@@ -31,12 +31,12 @@ def _handle_error(exc: Exception) -> None:
 
 def airlines_menu(client:APIClient)->None:
     while True:
-        print("=== AIRLINES ===")
+        print("=== AEROLINEAS ===")
         print("1) Listar")
         print("2) Ver Aerolínea(UUID)")
         print("3) Crear")
-        print("4) Actualizar")
-        print("5) Eliminar")
+        print("4) Actualizar(UUID)")
+        print("5) Eliminar(UUID)")
         print("0) Volver")
         op = input("Opcion: ").strip()
         try:
@@ -71,12 +71,12 @@ def airlines_menu(client:APIClient)->None:
 
 def airports_menu(client:APIClient)->None:
     while True:
-        print("=== AIRPORTS ===")
+        print("=== AEROPUERTOS ===")
         print("1) Listar")
         print("2) Ver Aeropuerto(UUID)")
         print("3) Crear")
-        print("4) Actualizar")
-        print("5) Eliminar")
+        print("4) Actualizar(UUID)")
+        print("5) Eliminar(UUID)")
         print("0) Volver")
         op = input("Opcion: ").strip()
         try:
