@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/reservations", tags=["reservations"])
 @router.get("", response_model=list[ReservationRead])
 async def list_reservations(
     db: AsyncSession = Depends(get_db),
-) -> list[ReservationRead]:
+) -> list[Reservation]:
     result = await db.execute(
         select(Reservation).order_by(Reservation.created_at.desc())
     )
