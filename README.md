@@ -1,1 +1,231 @@
 # airport-app
+
+Proyecto académico para un sistema de reservas de vuelos.
+
+- **Backend:** Python + FastAPI
+- **Servidor:** Uvicorn
+- **Base de datos:** Neon (PostgreSQL)
+- **ORM/Driver:** SQLAlchemy (async) + asyncpg
+- **Menú por consola:** CRUD consumiendo la API por HTTP (httpx)
+- **Equipo:** 3 personas (Windows + VS Code)
+- **Convenciones:** commits en **español**, código/estructuras en **inglés**.
+
+---
+
+## Integrantes
+
+- Ángel David Gutiérrez Ladino
+- Gerardo Andrés Jiménez Piedrahíta
+- Nicolás Josué Grijalba Huertas
+
+---
+
+## Entidades y contrato de API
+
+Entidades (CRUD):
+
+- `users` → `/api/users`
+- `reservations` → `/api/reservations`
+- `airlines` → `/api/airlines`
+- `airports` → `/api/airports`
+- `flights` → `/api/flights`
+- `passengers` → `/api/passengers`
+- `reservation_flights` → `/api/reservation-flights`
+
+> Todas las rutas están bajo el prefijo `/api/...`.
+
+---
+
+## Estructura del repositorio
+
+```text
+airport-app/
+├── app/
+│   ├── crud/             # Cliente HTTP usado por el menú (consume la API)
+│   ├── database/         # Configuración de conexión a Neon y sesión async
+│   ├── endpoints/        # Routers/Endpoints FastAPI por entidad
+│   ├── models/           # Modelos ORM (SQLAlchemy)
+│   ├── schemas/          # Esquemas Pydantic (request/response)
+│   ├── services/         # Lógica de negocio (ej: pricing / recálculo total)
+│   ├── utils/            # Helpers (CLI: tablas, pausa, limpiar pantalla, etc.)
+│   ├── __init__.py
+│   ├── app.py            # Aplicación FastAPI (registra routers)
+│   └── main.py           # Menú por consola (script principal)
+├── scripts/              # Scripts SQL (por ejemplo schema.sql)
+├── static/               # Frontend estático (futuro)
+├── docs/                 # Documentación (opcional)
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Requisitos
+
+- Python **3.11+** (recomendado)
+- Git
+- VS Code
+- Cuenta y base de datos en **Neon** (PostgreSQL)
+
+---
+
+## Configuración inicial (Windows)
+
+### 1) Clonar el repositorio
+
+```bash
+git clone https://github.com/Nicogrih/airport-app.git
+cd airport-app
+```
+
+### 2) Crear y activar el entorno virtual
+
+```bash
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+> Si PowerShell bloquea la activación, abre una terminal **Command Prompt (cmd)** en VS Code y usa:
+
+```bat
+.\.venv\Scripts\activate.bat
+```
+
+### 3) Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Variables de entorno (`.env`)
+
+Este proyecto usa un archivo `.env` **local** (no se sube al repositorio).
+
+1. Crea un archivo `.env` en la raíz del proyecto (al mismo nivel de `requirements.txt`).
+2. Agrega al menos:
+
+```env
+DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME
+```
+
+- `DATABASE_URL`: se obtiene desde Neon.
+
+### SSL en Neon (IMPORTANTE)
+
+En este proyecto el SSL se fuerza desde el código en `app/database/session.py` mediante:
+
+```python
+connect_args={"ssl": "require"}
+```
+
+Por eso el `DATABASE_URL` del `.env` **no necesita** `?sslmode=require`.
+
+### `API_BASE_URL` (opcional)
+
+El menú CLI permite configurar una URL base para consumir la API:
+
+```env
+API_BASE_URL=http://127.0.0.1:8000
+```
+
+Si no la defines, por defecto usa `http://127.0.0.1:8000`.
+
+---
+
+## Ejecutar la API (modo desarrollo)
+
+Con el entorno virtual activado:
+
+```bash
+uvicorn app.app:app --reload
+```
+
+Luego abre:
+
+- Swagger: http://127.0.0.1:8000/docs
+- OpenAPI JSON: http://127.0.0.1:8000/openapi.json
+
+---
+
+## Ejecutar el menú por consola (CRUD por HTTP)
+
+El menú **consume la API** mediante llamadas HTTP (no accede directo a la base de datos).
+
+1. Primero levanta el servidor:
+   ```bash
+   uvicorn app.app:app --reload
+   ```
+2. En otra terminal, ejecuta el menú:
+   ```bash
+   python -m app.main
+   ```
+
+---
+
+## Base de datos (Neon)
+
+- Los scripts para crear tablas se guardan en `scripts/` (por ejemplo `scripts/schema.sql`).
+- Ejecuta el script en Neon desde el **SQL Editor**.
+
+---
+
+## Flujo funcional (demo / caso de uso)
+
+Flujo recomendado para demostrar el sistema:
+
+1. Crear **aerolíneas**
+2. Crear **aeropuertos**
+3. Crear **vuelos** (usando airline + airports)
+4. Crear **usuarios**
+5. Crear **reserva**
+6. Asociar **vuelos** a la reserva (tabla intermedia `reservation_flights`)
+7. Agregar **pasajeros**
+8. Confirmar la reserva
+
+> Nota: el total de la reserva se calcula en backend (servicio `app/services/pricing.py`) según vuelos y cantidad de pasajeros.
+
+---
+
+## Flujo de trabajo con Git y GitHub (equipo de 3)
+
+Ramas principales:
+
+- `dev`: desarrollo / integración
+- `qa`: pruebas / calidad
+- `prod`: producción / entrega
+
+Flujo recomendado:
+
+1. Crear una rama por tarea desde `dev`:
+   ```bash
+   git checkout dev
+   git pull
+   git checkout -b feat-dev/nombre-tarea
+   ```
+2. Commits en español:
+   ```bash
+   git add .
+   git commit -m "Describe el cambio en español"
+   git push -u origin feat-dev/nombre-tarea
+   ```
+3. Abrir Pull Request de `feat-dev/...` hacia `dev`.
+4. Cuando `dev` esté estable, abrir PR `dev -> qa`.
+5. Cuando `qa` esté validado, abrir PR `qa -> prod`.
+
+Regla clave: **todo cambio entra por PR** (sin merges directos a ramas principales).
+
+---
+
+## Notas
+
+- `static/` queda reservada para el frontend (HTML/CSS/JS) más adelante.
+- Se prioriza simplicidad (KISS), PEP 8 y docstrings en funciones/módulos relevantes.
+
+---
+
+## Licencia
+
+Uso académico.
