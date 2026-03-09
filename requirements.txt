@@ -1,0 +1,7 @@
+fastapi[standard]
+sqlalchemy >= 2.0
+asyncpg
+python-dotenv
+pydantic
+alembic
+rich
