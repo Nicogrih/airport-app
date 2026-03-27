@@ -78,7 +78,7 @@ async def delete_airline(airline_id: UUID, db: AsyncSession = Depends(get_db)) -
     airline = await db.get(Airline, airline_id)
     if not airline:
         raise NotFoundError("Aerolinea no encontrada")
-    
+
     await db.delete(airline)
     await db.commit()
     return None

@@ -23,13 +23,17 @@ def _validate_flight_rules(
     status_value: str,
 ) -> None:
     if origin_airport_id == destination_airport_id:
-        raise ValidationError("origin_airport_id must be different from destination_airport_id")
+        raise ValidationError(
+            "origin_airport_id must be different from destination_airport_id"
+        )
 
     if arrival_at <= departure_at:
         raise ValidationError("arrival_at must be greater than departure_at")
 
     if status_value not in FLIGHT_STATUSES:
-        raise ValidationError(f"Invalid status. Must be one of: {sorted(FLIGHT_STATUSES)}")
+        raise ValidationError(
+            f"Invalid status. Must be one of: {sorted(FLIGHT_STATUSES)}"
+        )
 
 
 @router.get("", response_model=list[FlightRead])
@@ -52,7 +56,6 @@ async def create_flight(
 ) -> Flight:
     status_value = payload.status or "SCHEDULED"
     _validate_flight_rules(
-        airline_id=payload.airline_id,
         origin_airport_id=payload.origin_airport_id,
         destination_airport_id=payload.destination_airport_id,
         departure_at=payload.departure_at,
@@ -119,7 +122,6 @@ async def update_flight(
     status_value = payload.status if payload.status is not None else flight.status
 
     _validate_flight_rules(
-        airline_id=airline_id,
         origin_airport_id=origin_airport_id,
         destination_airport_id=destination_airport_id,
         departure_at=departure_at,
