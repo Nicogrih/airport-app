@@ -2,7 +2,7 @@ import uuid
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, Text, func
+from sqlalchemy import DateTime, Integer, Text, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,14 +16,22 @@ class Flight(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
 
-    airline_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    airline_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("airlines.id"),
+        nullable=False
+        )
     flight_number: Mapped[str] = mapped_column(Text, nullable=False)
 
     origin_airport_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("airports.id"),
+        nullable=False
     )
     destination_airport_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("airports.id"),
+        nullable=False
     )
 
     departure_at: Mapped[datetime] = mapped_column(

@@ -2,7 +2,7 @@ import uuid
 
 from datetime import date
 
-from sqlalchemy import Date, DateTime, Text, func
+from sqlalchemy import Date, DateTime, Text, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -17,7 +17,9 @@ class Passenger(Base):
     )
 
     reservation_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("reservations.id"),
+        nullable=False
     )
 
     first_name: Mapped[str] = mapped_column(Text, nullable=False)
