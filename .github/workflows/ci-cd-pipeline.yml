@@ -44,5 +44,5 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-          # TODO: Implementar cuando el script de  base de datos esté listo
+          # TODO: Implementar cuando el script de base de datos esté listo
           echo "Paso omitido temporalmente"

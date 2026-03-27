@@ -48,26 +48,68 @@ Entidades (CRUD):
 airport-app/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # <-- NUEVO: Pipeline de CI/CD
-├── alembic/                # <-- NUEVO: Configuración de Alembic
-│   ├── versions/           # <-- NUEVO: Archivos de migración de BD
-│   └── env.py
+│       └── ci-cd-pipeline.yml      # Pipeline de CI/CD (Black, Ruff, Tests)
+├── alembic/                        # Configuración de migraciones
+│   ├── versions/                   # Historial de cambios en la base de datos
+│   └── env.py                      # Configuración del entorno de Alembic
 ├── app/
-│   ├── core/               # <-- NUEVO: Manejo de errores y excepciones
-│   ├── crud/
-│   ├── database/
-│   ├── endpoints/
-│   ├── models/
-│   ├── schemas/
-│   ├── services/
-│   ├── utils/
+│   ├── core/                       # Lógica central del sistema
+│   │   ├── exceptions.py           # Definición de excepciones personalizadas
+│   │   └── handlers.py             # Manejadores de errores
+│   ├── crud/                       # Lógica de acceso a datos (Create, Read, Update, Delete)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── http_client.py
+│   │   ├── menu_airlines.py
+│   │   ├── menu_airports.py
+│   │   ├── menu_flights.py
+│   │   ├── menu_reservations.py
+│   │   ├── menu_users.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── database/                   # Configuración de la conexión a la BD
+│   │   ├── base.py                 # Declarative base para modelos
+│   │   └── session.py              # Gestión de sesiones (SQLAlchemy)
+│   ├── endpoints/                  # Rutas de la API (Controllers)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── models/                     # Modelos de SQLAlchemy (Tablas)
+│   │   ├── __init__.py
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── user.py
+│   ├── schemas/                    # Modelos de Pydantic (Validación de datos)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── services/                   # Lógica de negocio compleja
+│   │   └── pricing.py              # Cálculo de precios y tarifas
+│   ├── utils/                      # Funciones de ayuda
+│   │   └── cli_utils.py            # Utilidades para la interfaz de comandos
 │   ├── __init__.py
-│   ├── app.py
-│   └── main.py
+│   ├── app.py                      # Configuración de la aplicación
+│   └── main.py                     # Punto de entrada principal
 ├── scripts/
+│   └── schema.sql                  # Script SQL inicial de la base de datos
 ├── .gitignore
-├── alembic.ini             # <-- NUEVO: Configuración de Alembic
-├── requirements.txt
+├── alembic.ini                     # Archivo de configuración de Alembic
+├── requirements.txt                # Dependencias (FastAPI, SQLAlchemy, Ruff, etc.)
 └── README.md
 ```
 
