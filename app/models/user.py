@@ -1,4 +1,5 @@
 import uuid
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -6,11 +7,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
+if TYPE_CHECKING:
+    from app.models.reservations import Reservation
+
 
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
     )
     email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
