@@ -2,9 +2,9 @@ import uuid
 
 from datetime import date
 
-from sqlalchemy import Date, DateTime, Text, func
+from sqlalchemy import Date, DateTime, Text, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -17,7 +17,7 @@ class Passenger(Base):
     )
 
     reservation_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
+        ForeignKey("reservations.id"), nullable=False
     )
 
     first_name: Mapped[str] = mapped_column(Text, nullable=False)
@@ -29,3 +29,5 @@ class Passenger(Base):
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+    reservation: Mapped["Reservation"] = relationship(back_populates="passengers")

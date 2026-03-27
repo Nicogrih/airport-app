@@ -178,7 +178,7 @@ El objetivo es automatizar la verificación de calidad, pruebas, y la sincroniza
 2.  **Revisión Cruzada:** Revisen los PRs de sus compañeros. Es una buena práctica y parte de la evaluación.
 3.  **Merge a `dev`:** Una vez que los PRs estén aprobados, hacer merge. El pipeline de Gerardo debería ejecutarse automáticamente. Si falla, arréglenlo en equipo.
 4.  **Grabación del Video:** Con el pipeline funcionando, graben el video mostrando:
-    - El código del archivo `ci.yml`.
+    - El código del archivo `ci-cd-pipeline.yml`.
     - La ejecución exitosa del pipeline en la pestaña "Actions" de GitHub, explicando cada paso (linting, migraciones, seeder).
     - Una prueba de que los cambios en la BD se aplicaron (ej. mostrando los datos del seeder en la consola de Neon).
 5.  **Actualizar `README.md`:** Añadir el enlace al video y cualquier nueva instrucción.
