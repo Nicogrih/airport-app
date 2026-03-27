@@ -1,0 +1,48 @@
+name: CI Pipeline - Airport App
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 3. Instalar dependencias
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 4. Verficiación de estilo y formateo con Black y ruff
+        run: |
+          source .venv/bin/activate
+          black --check .
+          ruff check .
+
+      - name: 5. Ejecutar prubas con pytest
+        run: |
+          source .venv/bin/activate
+          pytest
+
+      - name: 6. Sincronizar el esquema de la base de datos y cargar datos iniciales
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          source .venv/bin/activate
+          # TODO: Implementar cuando el script de base de datos esté listo
+          echo "Paso omitido temporalmente"
