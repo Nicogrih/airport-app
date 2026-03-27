@@ -7,8 +7,16 @@ from app.endpoints.flights import router as flights_router
 from app.endpoints.reservations import router as reservations_router
 from app.endpoints.passengers import router as passengers_router
 from app.endpoints.reservation_flights import router as reservation_flights_router
+#exceptions y handlers
+from app.core.exceptions import AppError
+from app.core.handlers import app_error_handler
+
 
 app = FastAPI(title="airport-app", version="0.1.0")
+
+#manejadores de excepciones 
+app.add_exception_handler(AppError, app_error_handler)
+
 
 app.include_router(users_router)
 app.include_router(airlines_router)

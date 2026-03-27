@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,8 @@ from app.models.passengers import Passenger
 from app.models.reservations import Reservation
 from app.schemas.passengers import PassengerCreate, PassengerRead, PassengerUpdate
 from app.services.pricing import recalculate_reservation_total
+
+from app.core.exceptions import NotFoundError, ConflictError, ValidationError
 
 router = APIRouter(prefix="/api/passengers", tags=["passengers"])
 
@@ -36,9 +38,7 @@ async def get_passenger(
 ) -> Passenger:
     passenger = await db.get(Passenger, passenger_id)
     if not passenger:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger not found"
-        )
+        raise NotFoundError("Passenger not found")
     return passenger
 
 
@@ -48,16 +48,11 @@ async def create_passenger(
 ) -> Passenger:
     reservation = await db.get(Reservation, payload.reservation_id)
     if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reservation_id"
-        )
+        raise ValidationError("Invalid reservation_id")
 
     # (Recomendado) bloquear cambios si ya está confirmada
     if reservation.status == "CONFIRMED":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Reservation is CONFIRMED; passengers cannot be modified",
-        )
+       raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
 
     passenger = Passenger(
         reservation_id=payload.reservation_id,
@@ -83,31 +78,21 @@ async def update_passenger(
 ) -> Passenger:
     passenger = await db.get(Passenger, passenger_id)
     if not passenger:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger not found"
-        )
+        raise NotFoundError("Passenger not found")
 
     # (Recomendado) bloquear cambios si la reserva está confirmada
     current_reservation = await db.get(Reservation, passenger.reservation_id)
     if current_reservation and current_reservation.status == "CONFIRMED":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Reservation is CONFIRMED; passengers cannot be modified",
-        )
+        raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
 
     old_reservation_id = passenger.reservation_id
 
     if payload.reservation_id is not None:
         reservation = await db.get(Reservation, payload.reservation_id)
         if not reservation:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reservation_id"
-            )
+            raise ValidationError("Invalid reservation_id")
         if reservation.status == "CONFIRMED":
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Target reservation is CONFIRMED; passengers cannot be moved",
-            )
+            raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
         passenger.reservation_id = payload.reservation_id
 
     if payload.first_name is not None:
@@ -137,16 +122,11 @@ async def delete_passenger(
 ) -> None:
     passenger = await db.get(Passenger, passenger_id)
     if not passenger:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger not found"
-        )
+        raise NotFoundError("Passenger not found")
 
     reservation = await db.get(Reservation, passenger.reservation_id)
     if reservation and reservation.status == "CONFIRMED":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Reservation is CONFIRMED; passengers cannot be modified",
-        )
+        raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
 
     reservation_id = passenger.reservation_id
 

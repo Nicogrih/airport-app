@@ -1,12 +1,14 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
 from app.models.airlines import Airline
 from app.schemas.airlines import AirlineCreate, AirlineRead, AirlineUpdate
+
+from app.core.exceptions import NotFoundError, ConflictError
 
 router = APIRouter(prefix="/api/airlines", tags=["airlines"])
 
@@ -21,9 +23,7 @@ async def list_airlines(db: AsyncSession = Depends(get_db)) -> list[Airline]:
 async def get_airline(airline_id: UUID, db: AsyncSession = Depends(get_db)) -> Airline:
     airline = await db.get(Airline, airline_id)
     if not airline:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airline not found"
-        )
+        raise NotFoundError("Aerolinea no encontrada")
     return airline
 
 
@@ -33,9 +33,7 @@ async def create_airline(
 ) -> Airline:
     existing = await db.execute(select(Airline).where(Airline.code == payload.code))
     if existing.scalar_one_or_none() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Airline code already exists"
-        )
+        raise ConflictError("Esta Aerolinea ya existe")
 
     # NEW: country
     airline = Airline(code=payload.code, name=payload.name, country=payload.country)
@@ -51,9 +49,7 @@ async def update_airline(
 ) -> Airline:
     airline = await db.get(Airline, airline_id)
     if not airline:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airline not found"
-        )
+        raise NotFoundError("Aerolinea no encontrada")
 
     if payload.code is not None:
         existing = await db.execute(
@@ -62,10 +58,7 @@ async def update_airline(
             )
         )
         if existing.scalar_one_or_none() is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Airline code already exists",
-            )
+            raise ConflictError("Esta Aerolinea ya existe")
         airline.code = payload.code
 
     if payload.name is not None:
@@ -84,10 +77,8 @@ async def update_airline(
 async def delete_airline(airline_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
     airline = await db.get(Airline, airline_id)
     if not airline:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airline not found"
-        )
-
+        raise NotFoundError("Aerolinea no encontrada")
+    
     await db.delete(airline)
     await db.commit()
     return None
