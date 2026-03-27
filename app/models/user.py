@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -19,3 +19,5 @@ class User(Base):
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+    reservations: Mapped[List["Reservation"]] = relationship(back_populates="user")
