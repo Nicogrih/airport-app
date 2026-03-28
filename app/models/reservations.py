@@ -22,8 +22,6 @@ class Reservation(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     status: Mapped[str] = mapped_column(Text, nullable=False, default="HOLD")
     total_amount_cop: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[DateTime] = mapped_column(
