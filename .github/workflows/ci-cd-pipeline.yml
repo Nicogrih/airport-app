@@ -50,9 +50,13 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-          # 1. Volver al estado inicial (Limpia la estructura)
-          # alembic downgrade base
-          # 2. Crear todas las tablas desde cero
+          # 1. Intentamos limpiar (opcional, por si quedó algo)
+          alembic downgrade base || echo "Nada que limpiar"
+
+          # 2. CREAR LAS TABLAS (Esto es lo que falta)
+          echo "Creando tablas con Alembic..."
           alembic upgrade head
-          # 3. Cargar los datos de prueba
+
+          # 3. POBLAR DATOS
+          echo "Iniciando Seeder..."
           python -m app.database.seeder
