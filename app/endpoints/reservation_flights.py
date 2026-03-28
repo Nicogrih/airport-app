@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.database.session import get_db
 from app.models.flights import Flight
@@ -13,6 +14,8 @@ from app.schemas.reservation_flights import (
     ReservationFlightRead,
 )
 from app.services.pricing import recalculate_reservation_total
+
+from app.core.exceptions import NotFoundError, ConflictError, ValidationError
 
 router = APIRouter(prefix="/api/reservation-flights", tags=["reservation-flights"])
 
@@ -44,21 +47,14 @@ async def create_reservation_flight(
 ) -> ReservationFlight:
     reservation = await db.get(Reservation, payload.reservation_id)
     if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reservation_id"
-        )
+        raise ValidationError("Invalid reservation_id")
 
     # (Recomendado) bloquear cambios si ya está confirmada
     if reservation.status == "CONFIRMED":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Reservation is CONFIRMED; flights cannot be modified",
-        )
+        raise ConflictError("Reservation is CONFIRMED; flights cannot be modified")
 
     if not await db.get(Flight, payload.flight_id):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid flight_id"
-        )
+        raise ValidationError("Invalid flight_id")
 
     rf = ReservationFlight(
         reservation_id=payload.reservation_id,
@@ -69,12 +65,9 @@ async def create_reservation_flight(
 
     try:
         await db.commit()
-    except Exception as exc:
+    except IntegrityError:
         await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Duplicate flight or segment_order for this reservation",
-        ) from exc
+        raise ConflictError("Duplicate flight or segment_order for this reservation")
 
     await db.refresh(rf)
 
@@ -92,16 +85,11 @@ async def delete_reservation_flight(
 ) -> None:
     rf = await db.get(ReservationFlight, reservation_flight_id)
     if not rf:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Reservation flight not found"
-        )
+        raise NotFoundError("Reservation flight not found")
 
     reservation = await db.get(Reservation, rf.reservation_id)
     if reservation and reservation.status == "CONFIRMED":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Reservation is CONFIRMED; flights cannot be modified",
-        )
+        raise ConflictError("Reservation is CONFIRMED; flights cannot be modified")
 
     reservation_id = rf.reservation_id
 

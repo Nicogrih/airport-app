@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +13,8 @@ from app.schemas.reservations import (
     ReservationRead,
     ReservationUpdate,
 )
+
+from app.core.exceptions import NotFoundError, ValidationError
 
 router = APIRouter(prefix="/api/reservations", tags=["reservations"])
 
@@ -31,9 +33,7 @@ async def get_reservation(
 ) -> Reservation:
     reservation = await db.get(Reservation, reservation_id)
     if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Reservation not found"
-        )
+        raise NotFoundError("Reservation not found")
     return reservation
 
 
@@ -43,15 +43,12 @@ async def create_reservation(
 ) -> Reservation:
     user = await db.get(User, payload.user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user_id"
-        )
+        raise ValidationError("Invalid user_id")
 
     status_value = payload.status or "HOLD"
     if status_value not in RESERVATION_STATUSES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid status. Must be one of: {sorted(RESERVATION_STATUSES)}",
+        raise ValidationError(
+            f"Invalid status. Must be one of: {sorted(RESERVATION_STATUSES)}"
         )
 
     reservation = Reservation(
@@ -71,23 +68,18 @@ async def update_reservation(
 ) -> Reservation:
     reservation = await db.get(Reservation, reservation_id)
     if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Reservation not found"
-        )
+        raise NotFoundError("Reservation not found")
 
     if payload.user_id is not None:
         user = await db.get(User, payload.user_id)
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user_id"
-            )
+            raise ValidationError("Invalid user_id")
         reservation.user_id = payload.user_id
 
     if payload.status is not None:
         if payload.status not in RESERVATION_STATUSES:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid status. Must be one of: {sorted(RESERVATION_STATUSES)}",
+            raise ValidationError(
+                f"Invalid status. Must be one of: {sorted(RESERVATION_STATUSES)}"
             )
         reservation.status = payload.status
 
@@ -105,9 +97,7 @@ async def delete_reservation(
 ) -> None:
     reservation = await db.get(Reservation, reservation_id)
     if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Reservation not found"
-        )
+        raise NotFoundError("Reservation not found")
 
     await db.delete(reservation)
     await db.commit()

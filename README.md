@@ -12,6 +12,12 @@ Proyecto académico para un sistema de reservas de vuelos.
 
 ---
 
+## Video de Demostración del Pipeline
+
+**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://drive.google.com/drive/folders/1u-2K7V3rKAXLckZjtVTkr_3dIFhtDSVh?usp=sharing)
+
+---
+
 ## Integrantes
 
 - Ángel David Gutiérrez Ladino
@@ -40,22 +46,73 @@ Entidades (CRUD):
 
 ```text
 airport-app/
+├── .github/
+│   └── workflows/
+│       └── ci-cd-pipeline.yml      # Pipeline de CI/CD (Black, Ruff, Tests)
+├── alembic/                        # Configuración de migraciones
+│   ├── versions/                   # Historial de cambios en la base de datos
+│   └── env.py                      # Configuración del entorno de Alembic
 ├── app/
-│   ├── crud/             # Cliente HTTP usado por el menú (consume la API)
-│   ├── database/         # Configuración de conexión a Neon y sesión async
-│   ├── endpoints/        # Routers/Endpoints FastAPI por entidad
-│   ├── models/           # Modelos ORM (SQLAlchemy)
-│   ├── schemas/          # Esquemas Pydantic (request/response)
-│   ├── services/         # Lógica de negocio (ej: pricing / recálculo total)
-│   ├── utils/            # Helpers (CLI: tablas, pausa, limpiar pantalla, etc.)
+│   ├── core/                       # Lógica central del sistema
+│   │   ├── exceptions.py           # Definición de excepciones personalizadas
+│   │   └── handlers.py             # Manejadores de errores
+│   ├── crud/                       # Lógica de acceso a datos (Create, Read, Update, Delete)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── http_client.py
+│   │   ├── menu_airlines.py
+│   │   ├── menu_airports.py
+│   │   ├── menu_flights.py
+│   │   ├── menu_reservations.py
+│   │   ├── menu_users.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── database/                   # Configuración de la conexión a la BD
+│   │   ├── base.py                 # Declarative base para modelos
+│   │   └── session.py              # Gestión de sesiones (SQLAlchemy)
+│   ├── endpoints/                  # Rutas de la API (Controllers)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── models/                     # Modelos de SQLAlchemy (Tablas)
+│   │   ├── __init__.py
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── user.py
+│   ├── schemas/                    # Modelos de Pydantic (Validación de datos)
+│   │   ├── airlines.py
+│   │   ├── airports.py
+│   │   ├── flights.py
+│   │   ├── passengers.py
+│   │   ├── reservation_flights.py
+│   │   ├── reservations.py
+│   │   └── users.py
+│   ├── services/                   # Lógica de negocio compleja
+│   │   └── pricing.py              # Cálculo de precios y tarifas
+│   ├── utils/                      # Funciones de ayuda
+│   │   └── cli_utils.py            # Utilidades para la interfaz de comandos
 │   ├── __init__.py
-│   ├── app.py            # Aplicación FastAPI (registra routers)
-│   └── main.py           # Menú por consola (script principal)
-├── scripts/              # Scripts SQL (por ejemplo schema.sql)
-├── static/               # Frontend estático (futuro)
-├── docs/                 # Documentación (opcional)
+│   ├── app.py                      # Configuración de la aplicación
+│   └── main.py                     # Punto de entrada principal
+├── scripts/
+│   └── schema.sql                  # Script SQL inicial de la base de datos
+├── tests/                          # Pruebas unitarias de lógica
+│   └── __init__.py
+│   └── test_api_logic.py
 ├── .gitignore
-├── requirements.txt
+├── alembic.ini                     # Archivo de configuración de Alembic
+├── requirements.txt                # Dependencias (FastAPI, SQLAlchemy, Ruff, etc.)
 └── README.md
 ```
 
@@ -86,52 +143,46 @@ py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-> Si PowerShell bloquea la activación, abre una terminal **Command Prompt (cmd)** en VS Code y usa:
-
-```bat
-.\.venv\Scripts\activate.bat
-```
+> Si PowerShell bloquea la activación, usa Command Prompt (cmd): `.venv\Scripts\activate.bat`
 
 ### 3) Instalar dependencias
+
+El archivo `requirements.txt` ahora incluye las herramientas de desarrollo como `Alembic`, `Ruff`, `Black` y `Pytest`.
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+### 4) Configurar variables de entorno (`.env`)
 
-## Variables de entorno (`.env`)
-
-Este proyecto usa un archivo `.env` **local** (no se sube al repositorio).
-
-1. Crea un archivo `.env` en la raíz del proyecto (al mismo nivel de `requirements.txt`).
-2. Agrega al menos:
+Crea un archivo `.env` en la raíz del proyecto. Este archivo es local y **no se sube al repositorio**.
 
 ```env
+# URL de conexión a tu base de datos de Neon
 DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME
 ```
 
-- `DATABASE_URL`: se obtiene desde Neon.
+---
 
-### SSL en Neon (IMPORTANTE)
+## Base de Datos (Alembic y Seeder)
 
-En este proyecto el SSL se fuerza desde el código en `app/database/session.py` mediante:
+Este proyecto utiliza **Alembic** para manejar las migraciones del esquema de la base de datos y un **seeder** para poblar datos iniciales. Ya no se usan scripts SQL manuales.
 
-```python
-connect_args={"ssl": "require"}
+### 1) Aplicar Migraciones
+
+Este comando actualiza el esquema de tu base de datos a la última versión según los modelos de SQLAlchemy.
+
+```bash
+alembic upgrade head
 ```
 
-Por eso el `DATABASE_URL` del `.env` **no necesita** `?sslmode=require`.
+### 2) Poblar Datos Iniciales (Seeder)
 
-### `API_BASE_URL` (opcional)
+Este comando ejecuta el script que inserta datos iniciales (catálogos, usuarios por defecto, etc.) de forma idempotente.
 
-El menú CLI permite configurar una URL base para consumir la API:
-
-```env
-API_BASE_URL=http://127.0.0.1:8000
+```bash
+python -m app.database.seeder
 ```
-
-Si no la defines, por defecto usa `http://127.0.0.1:8000`.
 
 ---
 
@@ -143,10 +194,24 @@ Con el entorno virtual activado:
 uvicorn app.app:app --reload
 ```
 
-Luego abre:
+- **Swagger:** http://127.0.0.1:8000/docs
+- **ReDoc:** http://127.0.0.1:8000/redoc
 
-- Swagger: http://127.0.0.1:8000/docs
-- OpenAPI JSON: http://127.0.0.1:8000/openapi.json
+---
+
+## Pipeline de Integración Continua (CI/CD)
+
+Este proyecto incluye un pipeline de CI/CD configurado en `.github/workflows/ci.yml`.
+
+**¿Qué hace?**
+Cada vez que se integra código en la rama `dev`, el pipeline se ejecuta automáticamente para:
+
+1.  **Verificar la calidad del código** (linting y formato) con Ruff y Black.
+2.  **Instalar las dependencias** para asegurar que el proyecto no tenga paquetes rotos.
+3.  **Ejecutar las migraciones de la base de datos** con Alembic.
+4.  **Poblar la base de datos** con datos iniciales usando el seeder.
+
+Esto garantiza que la rama `dev` siempre se mantenga estable y funcional.
 
 ---
 
@@ -162,13 +227,6 @@ El menú **consume la API** mediante llamadas HTTP (no accede directo a la base 
    ```bash
    python -m app.main
    ```
-
----
-
-## Base de datos (Neon)
-
-- Los scripts para crear tablas se guardan en `scripts/` (por ejemplo `scripts/schema.sql`).
-- Ejecuta el script en Neon desde el **SQL Editor**.
 
 ---
 
@@ -189,43 +247,40 @@ Flujo recomendado para demostrar el sistema:
 
 ---
 
-## Flujo de trabajo con Git y GitHub (equipo de 3)
+## Flujo de trabajo con Git y GitHub
 
-Ramas principales:
+Ramas principales: `dev` (desarrollo), `qa` (pruebas), `prod` (producción).
 
-- `dev`: desarrollo / integración
-- `qa`: pruebas / calidad
-- `prod`: producción / entrega
+1.  **Crear una rama por tarea desde `dev`**:
+    ```bash
+    git checkout dev
+    git pull
+    git checkout -b feat/nombre-tarea
+    ```
+2.  **Hacer commits en español**:
+    ```bash
+    git add .
+    git commit -m "Describe el cambio en español"
+    git push -u origin feat/nombre-tarea
+    ```
+3.  **Abrir Pull Request (PR) hacia `dev`**:
+    - Al abrir el PR, el pipeline de CI/CD se ejecutará para verificar tu código.
+    - El equipo debe revisar el código antes de aprobar.
+4.  **Integrar a `dev`**: Una vez aprobado y con el pipeline en verde, haz merge del PR.
+5.  **Promover a `qa` y `prod`**: Cuando `dev` esté estable, se crean PRs de `dev -> qa` y luego `qa -> prod`.
 
-Flujo recomendado:
-
-1. Crear una rama por tarea desde `dev`:
-   ```bash
-   git checkout dev
-   git pull
-   git checkout -b feat-dev/nombre-tarea
-   ```
-2. Commits en español:
-   ```bash
-   git add .
-   git commit -m "Describe el cambio en español"
-   git push -u origin feat-dev/nombre-tarea
-   ```
-3. Abrir Pull Request de `feat-dev/...` hacia `dev`.
-4. Cuando `dev` esté estable, abrir PR `dev -> qa`.
-5. Cuando `qa` esté validado, abrir PR `qa -> prod`.
-
-Regla clave: **todo cambio entra por PR** (sin merges directos a ramas principales).
-
----
-
-## Notas
-
-- `static/` queda reservada para el frontend (HTML/CSS/JS) más adelante.
-- Se prioriza simplicidad (KISS), PEP 8 y docstrings en funciones/módulos relevantes.
+Regla clave: **todo cambio entra por PR**.
 
 ---
 
 ## Licencia
 
-Uso académico.
+Este proyecto se distribuye bajo la **Licencia MIT**.
+
+**Copyright (c) 2026 - Ángel Gutiérrez, Gerardo Jiménez, Nicolás Grijalba.**
+
+Se otorga permiso por la presente, de forma gratuita, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados, para utilizar el Software con fines estrictamente académicos, incluyendo sin limitación los derechos de usar, copiar, modificar, fusionar y publicar copias del Software, sujeto a las siguientes condiciones:
+
+1. El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
+2. **EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA.**
+3. El uso de este software es para fines de aprendizaje en el curso de Aplicación y Servicios Web 2026-1.

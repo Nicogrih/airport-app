@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,11 +10,12 @@ from app.models.airports import Airport
 from app.models.flights import Flight
 from app.schemas.flights import FLIGHT_STATUSES, FlightCreate, FlightRead, FlightUpdate
 
+from app.core.exceptions import NotFoundError, ValidationError
+
 router = APIRouter(prefix="/api/flights", tags=["flights"])
 
 
 def _validate_flight_rules(
-    airline_id: UUID,
     origin_airport_id: UUID,
     destination_airport_id: UUID,
     departure_at,
@@ -22,21 +23,16 @@ def _validate_flight_rules(
     status_value: str,
 ) -> None:
     if origin_airport_id == destination_airport_id:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="origin_airport_id must be different from destination_airport_id",
+        raise ValidationError(
+            "origin_airport_id must be different from destination_airport_id"
         )
 
     if arrival_at <= departure_at:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="arrival_at must be greater than departure_at",
-        )
+        raise ValidationError("arrival_at must be greater than departure_at")
 
     if status_value not in FLIGHT_STATUSES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid status. Must be one of: {sorted(FLIGHT_STATUSES)}",
+        raise ValidationError(
+            f"Invalid status. Must be one of: {sorted(FLIGHT_STATUSES)}"
         )
 
 
@@ -50,9 +46,7 @@ async def list_flights(db: AsyncSession = Depends(get_db)) -> list[Flight]:
 async def get_flight(flight_id: UUID, db: AsyncSession = Depends(get_db)) -> Flight:
     flight = await db.get(Flight, flight_id)
     if not flight:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found"
-        )
+        raise NotFoundError("Flights not found")
     return flight
 
 
@@ -62,7 +56,6 @@ async def create_flight(
 ) -> Flight:
     status_value = payload.status or "SCHEDULED"
     _validate_flight_rules(
-        airline_id=payload.airline_id,
         origin_airport_id=payload.origin_airport_id,
         destination_airport_id=payload.destination_airport_id,
         departure_at=payload.departure_at,
@@ -72,23 +65,13 @@ async def create_flight(
 
     airline = await db.get(Airline, payload.airline_id)
     if not airline:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid airline_id"
-        )
-
+        raise ValidationError("Invalid airline_id")
     origin = await db.get(Airport, payload.origin_airport_id)
     if not origin:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid origin_airport_id"
-        )
-
+        raise ValidationError("Invalid origin_airport_id")
     dest = await db.get(Airport, payload.destination_airport_id)
     if not dest:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid destination_airport_id",
-        )
-
+        raise ValidationError("Invalid destination_airport_id")
     # FIX: asignar price_cop (siempre) para que nunca sea None en la respuesta
     flight = Flight(
         airline_id=payload.airline_id,
@@ -112,14 +95,12 @@ async def update_flight(
 ) -> Flight:
     flight = await db.get(Flight, flight_id)
     if not flight:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found"
-        )
+        raise NotFoundError("Flights not found")
 
     # Proponer valores finales (para validar reglas de negocio)
-    airline_id = (
+    """ airline_id = (
         payload.airline_id if payload.airline_id is not None else flight.airline_id
-    )
+    ) """
     origin_airport_id = (
         payload.origin_airport_id
         if payload.origin_airport_id is not None
@@ -141,7 +122,6 @@ async def update_flight(
     status_value = payload.status if payload.status is not None else flight.status
 
     _validate_flight_rules(
-        airline_id=airline_id,
         origin_airport_id=origin_airport_id,
         destination_airport_id=destination_airport_id,
         departure_at=departure_at,
@@ -152,25 +132,17 @@ async def update_flight(
     # Validar FKs solo si cambian (o si payload lo trae)
     if payload.airline_id is not None:
         if not await db.get(Airline, payload.airline_id):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid airline_id"
-            )
+            raise ValidationError("Invalid airline_id")
         flight.airline_id = payload.airline_id
 
     if payload.origin_airport_id is not None:
         if not await db.get(Airport, payload.origin_airport_id):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid origin_airport_id",
-            )
+            raise ValidationError("Invalid origin_airport_id")
         flight.origin_airport_id = payload.origin_airport_id
 
     if payload.destination_airport_id is not None:
         if not await db.get(Airport, payload.destination_airport_id):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid destination_airport_id",
-            )
+            raise ValidationError("Invalid destination_airport_id")
         flight.destination_airport_id = payload.destination_airport_id
 
     if payload.flight_number is not None:
@@ -198,9 +170,7 @@ async def update_flight(
 async def delete_flight(flight_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
     flight = await db.get(Flight, flight_id)
     if not flight:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found"
-        )
+        raise NotFoundError("Flights not found")
 
     await db.delete(flight)
     await db.commit()
