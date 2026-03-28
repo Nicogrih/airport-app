@@ -1,12 +1,14 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
 from app.models.user import User
 from app.schemas.users import UserCreate, UserRead, UserUpdate
+
+from app.core.exceptions import NotFoundError, ConflictError
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -21,9 +23,7 @@ async def list_users(db: AsyncSession = Depends(get_db)) -> list[User]:
 async def get_user(user_id: UUID, db: AsyncSession = Depends(get_db)) -> User:
     user = await db.get(User, user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+        raise NotFoundError("User not found")
     return user
 
 
@@ -32,9 +32,7 @@ async def create_user(payload: UserCreate, db: AsyncSession = Depends(get_db)) -
     # validar email único (mensaje bonito)
     existing = await db.execute(select(User).where(User.email == payload.email))
     if existing.scalar_one_or_none() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
-        )
+        raise ConflictError("Email already exists")
 
     user = User(
         email=payload.email, full_name=payload.full_name, role=payload.role or "CLIENT"
@@ -51,9 +49,7 @@ async def update_user(
 ) -> User:
     user = await db.get(User, user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+        raise NotFoundError("User not found")
 
     if payload.email is not None:
         # si cambia email, validar unique
@@ -61,9 +57,7 @@ async def update_user(
             select(User).where(User.email == payload.email, User.id != user_id)
         )
         if existing.scalar_one_or_none() is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
-            )
+            raise ConflictError("Email already exists")
         user.email = payload.email
 
     if payload.full_name is not None:
@@ -81,9 +75,7 @@ async def update_user(
 async def delete_user(user_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
     user = await db.get(User, user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+        raise NotFoundError("User not found")
 
     await db.delete(user)
     await db.commit()

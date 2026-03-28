@@ -5,3 +5,8 @@ python-dotenv
 pydantic
 alembic
 rich
+ruff
+black
+pytest
+psycopg2-binary
+pytest-asyncio

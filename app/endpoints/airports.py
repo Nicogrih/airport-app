@@ -1,12 +1,14 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
 from app.models.airports import Airport
 from app.schemas.airports import AirportCreate, AirportRead, AirportUpdate
+
+from app.core.exceptions import NotFoundError, ConflictError
 
 router = APIRouter(prefix="/api/airports", tags=["airports"])
 
@@ -21,9 +23,7 @@ async def list_airports(db: AsyncSession = Depends(get_db)) -> list[Airport]:
 async def get_airport(airport_id: UUID, db: AsyncSession = Depends(get_db)) -> Airport:
     airport = await db.get(Airport, airport_id)
     if not airport:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airport not found"
-        )
+        raise NotFoundError("Airport not found")
     return airport
 
 
@@ -33,9 +33,7 @@ async def create_airport(
 ) -> Airport:
     existing = await db.execute(select(Airport).where(Airport.code == payload.code))
     if existing.scalar_one_or_none() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Airport code already exists"
-        )
+        raise ConflictError("Airport code already exists")
 
     # NEW: city
     airport = Airport(
@@ -56,9 +54,7 @@ async def update_airport(
 ) -> Airport:
     airport = await db.get(Airport, airport_id)
     if not airport:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airport not found"
-        )
+        raise NotFoundError("Airport not found")
 
     if payload.code is not None:
         existing = await db.execute(
@@ -67,10 +63,7 @@ async def update_airport(
             )
         )
         if existing.scalar_one_or_none() is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Airport code already exists",
-            )
+            raise ConflictError("Airport code already exists")
         airport.code = payload.code
 
     if payload.name is not None:
@@ -91,9 +84,7 @@ async def update_airport(
 async def delete_airport(airport_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
     airport = await db.get(Airport, airport_id)
     if not airport:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Airport not found"
-        )
+        raise NotFoundError("Airport not found")
 
     await db.delete(airport)
     await db.commit()
