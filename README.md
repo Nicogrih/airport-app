@@ -275,4 +275,11 @@ Regla clave: **todo cambio entra por PR**.
 
 ## Licencia
 
-Uso académico.
+Este proyecto está bajo la **Licencia MIT**.
+
+Copyright (c) 2026 - Ángel Gutiérrez, Gerardo Jiménez, Nicolás Grijalba.
+
+Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software, para utilizarlo con fines académicos y de aprendizaje, sin restricciones, incluyendo el derecho a usar, copiar, modificar y fusionar copias del software, sujeto a las siguientes condiciones:
+
+- El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del software.
+- EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO.
