@@ -50,13 +50,10 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-          # 1. Intentamos limpiar (opcional, por si quedó algo)
-          alembic downgrade base || echo "Nada que limpiar"
 
-          # 2. CREAR LAS TABLAS (Esto es lo que falta)
-          echo "Creando tablas con Alembic..."
+          echo "Sincronizando esquema con la base de datos..."
+          # Forzamos a que se marquen y ejecuten las migraciones
           alembic upgrade head
 
-          # 3. POBLAR DATOS
           echo "Iniciando Seeder..."
           python -m app.database.seeder
