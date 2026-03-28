@@ -45,14 +45,22 @@ jobs:
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "EL SECRETO ESTÁ VACÍO"; else echo "EL SECRETO TIENE VALOR"; fi
 
-      - name: 7. Reiniciar DB, Sincronizar y Cargar Datos
+      - name: 7. Aplicar Migraciones a Base de Datos
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-          # 1. Volver al estado inicial (Limpia la estructura)
-          # alembic downgrade base
-          # 2. Crear todas las tablas desde cero
+          echo "Aplicando migraciones sobre base de datos limpia..."
           alembic upgrade head
-          # 3. Cargar los datos de prueba
+          echo "Migraciones aplicadas exitosamente"
+
+      - name: 7.1 Esperar cierre de conexiones
+        run: sleep 3
+
+      - name: 8. Ejecutar Seeder
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          source .venv/bin/activate
+          echo "Ejecutando Seeder..."
           python -m app.database.seeder

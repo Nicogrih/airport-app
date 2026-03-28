@@ -275,11 +275,12 @@ Regla clave: **todo cambio entra por PR**.
 
 ## Licencia
 
-Este proyecto está bajo la **Licencia MIT**.
+Este proyecto se distribuye bajo la **Licencia MIT**.
 
-Copyright (c) 2026 - Ángel Gutiérrez, Gerardo Jiménez, Nicolás Grijalba.
+**Copyright (c) 2026 - Ángel Gutiérrez, Gerardo Jiménez, Nicolás Grijalba.**
 
-Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software, para utilizarlo con fines académicos y de aprendizaje, sin restricciones, incluyendo el derecho a usar, copiar, modificar y fusionar copias del software, sujeto a las siguientes condiciones:
+Se otorga permiso por la presente, de forma gratuita, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados, para utilizar el Software con fines estrictamente académicos, incluyendo sin limitación los derechos de usar, copiar, modificar, fusionar y publicar copias del Software, sujeto a las siguientes condiciones:
 
-- El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del software.
-- EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO.
+1. El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
+2. **EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA.**
+3. El uso de este software es para fines de aprendizaje en el curso de Aplicación y Servicios Web 2026-1.
