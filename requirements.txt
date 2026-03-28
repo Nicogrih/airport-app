@@ -8,3 +8,4 @@ rich
 ruff
 black
 pytest
+psycopg2-binary

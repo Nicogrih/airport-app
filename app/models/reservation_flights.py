@@ -1,6 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
+from sqlalchemy import DateTime, Integer, func, ForeignKey
 from sqlalchemy import DateTime, Integer, func, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,6 +26,16 @@ class ReservationFlight(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     reservation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("reservations.id"),
+        nullable=False
+    )
+    flight_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("flights.id"),
+        nullable=False
+        )
+
         ForeignKey("reservations.id"), nullable=False
     )
     flight_id: Mapped[uuid.UUID] = mapped_column(
