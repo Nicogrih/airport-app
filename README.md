@@ -14,7 +14,7 @@ Proyecto académico para un sistema de reservas de vuelos.
 
 ## Video de Demostración del Pipeline
 
-**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://www.youtube.com/)
+**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://drive.google.com/drive/folders/1u-2K7V3rKAXLckZjtVTkr_3dIFhtDSVh?usp=sharing)
 
 ---
 
