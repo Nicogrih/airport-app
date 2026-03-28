@@ -45,15 +45,13 @@ jobs:
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "EL SECRETO ESTÁ VACÍO"; else echo "EL SECRETO TIENE VALOR"; fi
 
-      - name: 7. Reiniciar DB, Sincronizar y Cargar Datos
+      - name: 7. Sincronizar Base de Datos y Seeder
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-
-          echo "Sincronizando esquema con la base de datos..."
-          # Forzamos a que se marquen y ejecuten las migraciones
+          echo "Aplicando migraciones sobre base de datos limpia..."
           alembic upgrade head
 
-          echo "Iniciando Seeder..."
+          echo "Ejecutando Seeder..."
           python -m app.database.seeder
