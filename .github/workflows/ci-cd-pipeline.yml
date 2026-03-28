@@ -54,6 +54,9 @@ jobs:
           alembic upgrade head
           echo "Migraciones aplicadas exitosamente"
 
+      - name: 7.1 Esperar cierre de conexiones
+        run: sleep 3
+
       - name: 8. Ejecutar Seeder
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
