@@ -98,9 +98,9 @@ async def update_flight(
         raise NotFoundError("Flights not found")
 
     # Proponer valores finales (para validar reglas de negocio)
-    airline_id = (
+    """ airline_id = (
         payload.airline_id if payload.airline_id is not None else flight.airline_id
-    )
+    ) """
     origin_airport_id = (
         payload.origin_airport_id
         if payload.origin_airport_id is not None

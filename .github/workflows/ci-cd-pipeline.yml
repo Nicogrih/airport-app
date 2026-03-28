@@ -39,10 +39,20 @@ jobs:
           source .venv/bin/activate
           pytest
 
-      - name: 6. Sincronizar el esquema de la base de datos y cargar datos iniciales
+      - name: 6. Verificar Secreto
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "EL SECRETO ESTÁ VACÍO"; else echo "EL SECRETO TIENE VALOR"; fi
+
+      - name: 7. Reiniciar DB, Sincronizar y Cargar Datos
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           source .venv/bin/activate
-          # TODO: Implementar cuando el script de base de datos esté listo
-          echo "Paso omitido temporalmente"
+          # 1. Volver al estado inicial (Limpia la estructura)
+          # alembic downgrade base
+          # 2. Crear todas las tablas desde cero
+          alembic upgrade head
+          # 3. Cargar los datos de prueba
+          python -m app.database.seeder

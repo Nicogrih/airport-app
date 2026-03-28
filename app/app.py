@@ -11,7 +11,6 @@ from app.endpoints.reservation_flights import router as reservation_flights_rout
 # exceptions y handlers
 from app.core.handlers import register_error_handlers
 
-
 app = FastAPI(title="airport-app", version="0.1.0")
 
 # manejadores de excepciones

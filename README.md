@@ -107,6 +107,9 @@ airport-app/
 │   └── main.py                     # Punto de entrada principal
 ├── scripts/
 │   └── schema.sql                  # Script SQL inicial de la base de datos
+├── tests/                          # Pruebas unitarias de lógica
+│   └── __init__.py
+│   └── test_api_logic.py
 ├── .gitignore
 ├── alembic.ini                     # Archivo de configuración de Alembic
 ├── requirements.txt                # Dependencias (FastAPI, SQLAlchemy, Ruff, etc.)
