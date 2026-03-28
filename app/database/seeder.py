@@ -7,11 +7,8 @@ from app.models.user import User
 from app.models.airlines import Airline
 from app.models.airports import Airport
 from app.models.flights import Flight
-from app.models.reservations import Reservation
-from app.models.reservation_flights import ReservationFlight
-from app.models.passengers import Passenger
 from sqlalchemy import select
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 async def seed_users(db):

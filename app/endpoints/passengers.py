@@ -52,7 +52,7 @@ async def create_passenger(
 
     # (Recomendado) bloquear cambios si ya está confirmada
     if reservation.status == "CONFIRMED":
-       raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
+        raise ConflictError("Reservation is CONFIRMED; passengers cannot be added")
 
     passenger = Passenger(
         reservation_id=payload.reservation_id,

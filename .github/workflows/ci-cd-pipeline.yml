@@ -39,7 +39,13 @@ jobs:
           source .venv/bin/activate
           pytest
 
-      - name: 6. Reiniciar DB, Sincronizar y Cargar Datos
+      - name: 6. Verificar Secreto
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "EL SECRETO ESTÁ VACÍO"; else echo "EL SECRETO TIENE VALOR"; fi
+
+      - name: 7. Reiniciar DB, Sincronizar y Cargar Datos
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |

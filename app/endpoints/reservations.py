@@ -43,7 +43,7 @@ async def create_reservation(
 ) -> Reservation:
     user = await db.get(User, payload.user_id)
     if not user:
-       raise ValidationError("Invalid user_id")
+        raise ValidationError("Invalid user_id")
 
     status_value = payload.status or "HOLD"
     if status_value not in RESERVATION_STATUSES:
@@ -68,7 +68,7 @@ async def update_reservation(
 ) -> Reservation:
     reservation = await db.get(Reservation, reservation_id)
     if not reservation:
-       raise NotFoundError("Reservation not found")
+        raise NotFoundError("Reservation not found")
 
     if payload.user_id is not None:
         user = await db.get(User, payload.user_id)
