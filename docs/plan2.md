@@ -61,36 +61,26 @@ El objetivo es reemplazar la creación manual de tablas (`schema.sql`) por un si
     - Única excepción: Gerardo (Integrador) también implementa JWT y CORS y coordina CI/CD.
     - Migraciones y `seeder` son colaborativos: cada quien genera las migraciones para sus cambios y añade sus datos seed en `app/database/seeder.py`. El Integrador ejecuta las migraciones en CI.
 
-    ## 3. Asignación por persona (verticales iguales)
+    ## 3. Asignación por persona (verticales)
 
-    ### Gerardo Andrés Jiménez Piedrahíta — Integrador, responsabilidades principales:
-    - `.github/workflows/ci-cd-pipeline.yml`
-    - `README.md`
+    ### Nicolás Josué Grijalba Huertas — responsabilidades principales:
     - `alembic.ini`
     - `alembic/env.py`
-    - `app/app.py`
-    - `app/core/__init__.py`
-    - `app/core/exceptions.py`
-    - `app/core/handlers.py`
-    - `app/core/security.py`
-    - `app/crud/menu_reservations.py`
-    - `app/crud/passengers.py`
-    - `app/crud/reservation_flights.py`
-    - `app/crud/reservations.py`
-    - `app/database/__init__.py`
-    - `app/database/base.py`
-    - `app/database/seeder.py`
-    - `app/database/session.py`
-    - `app/endpoints/passengers.py`
-    - `app/endpoints/reservation_flights.py`
-    - `app/endpoints/reservations.py`
-    - `app/main.py`
-    - `app/models/passengers.py`
-    - `app/models/reservation_flights.py`
-    - `app/models/reservations.py`
-    - `app/schemas/passengers.py`
-    - `app/schemas/reservation_flights.py`
-    - `app/schemas/reservations.py`
+    - `alembic/README`
+    - `alembic/script.py.mako`
+    - `alembic/versions/53c3ac11e09c_migracion_inicial.py`
+    - `alembic/versions/a7f3d4c92b10_add_password_hash_to_users.py`
+    - `app/crud/airlines.py`
+    - `app/crud/airports.py`
+    - `app/crud/menu_airlines.py`
+    - `app/crud/menu_airports.py`
+    - `app/endpoints/airlines.py`
+    - `app/endpoints/airports.py`
+    - `app/models/airlines.py`
+    - `app/models/airports.py`
+    - `app/schemas/airlines.py`
+    - `app/schemas/airports.py`
+    - `requirements.txt`
 
     ### Ángel David Gutiérrez Ladino — Users + Flights, responsabilidades principales:
     - `app/crud/auth.py`
@@ -104,39 +94,37 @@ El objetivo es reemplazar la creación manual de tablas (`schema.sql`) por un si
     - `app/endpoints/users.py`
     - `app/models/flights.py`
     - `app/models/user.py`
-    - `app/schemas/__init__.py`
     - `app/schemas/auth.py`
     - `app/schemas/flights.py`
     - `app/schemas/users.py`
-    - `app/services/pricing.py`
-    - `app/utils/cli_utils.py`
-    - `tests/__init__.py`
     - `tests/test_api_logic.py`
 
-    ### Nicolás Josué Grijalba Huertas — responsabilidades principales:
-    - `alembic/README`
-    - `alembic/script.py.mako`
-    - `alembic/versions/53c3ac11e09c_migracion_inicial.py`
-    - `alembic/versions/a7f3d4c92b10_add_password_hash_to_users.py`
-    - `app/crud/__init__.py`
-    - `app/crud/airlines.py`
-    - `app/crud/airports.py`
-    - `app/crud/menu_airlines.py`
-    - `app/crud/menu_airports.py`
-    - `app/endpoints/__init__.py`
-    - `app/endpoints/airlines.py`
-    - `app/endpoints/airports.py`
-    - `app/models/__init__.py`
-    - `app/models/airlines.py`
-    - `app/models/airports.py`
-    - `app/schemas/__init__.py`
-    - `app/schemas/airlines.py`
-    - `app/schemas/airports.py`
-    - `app/services/__init__.py`
-    - `docs/flujo.md`
-    - `docs/workflow-git.md`
-    - `requirements.txt`
-    - `scripts/schema.sql`
+    ### Gerardo Andrés Jiménez Piedrahíta — Integrador, responsabilidades principales:
+    - `.github/workflows/ci-cd-pipeline.yml`
+    - `README.md`
+    - `app/app.py`
+    - `app/core/exceptions.py`
+    - `app/core/handlers.py`
+    - `app/core/security.py`
+    - `app/crud/menu_reservations.py`
+    - `app/crud/passengers.py`
+    - `app/crud/reservation_flights.py`
+    - `app/crud/reservations.py`
+    - `app/database/base.py`
+    - `app/database/seeder.py`
+    - `app/database/session.py`
+    - `app/endpoints/passengers.py`
+    - `app/endpoints/reservation_flights.py`
+    - `app/endpoints/reservations.py`
+    - `app/main.py`
+    - `app/models/passengers.py`
+    - `app/models/reservation_flights.py`
+    - `app/models/reservations.py`
+    - `app/schemas/passengers.py`
+    - `app/schemas/reservation_flights.py`
+    - `app/schemas/reservations.py`
+    - `app/services/pricing.py`
+    - `app/utils/cli_utils.py`
 
 ## 4. Reglas de trabajo (breve)
 
