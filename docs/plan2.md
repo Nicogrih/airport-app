@@ -64,82 +64,79 @@ El objetivo es reemplazar la creación manual de tablas (`schema.sql`) por un si
     ## 3. Asignación por persona (verticales iguales)
 
     ### Gerardo Andrés Jiménez Piedrahíta — Integrador, responsabilidades principales:
-    - `app/endpoints/reservation_flights.py`
-    - `app/endpoints/reservations.py`
-    - `app/endpoints/passengers.py`
-    - `app/database/__init__.py`
-    - `app/database/session.py`
-    - `app/database/seeder.py`
-    - `app/database/base.py`
+    - `.github/workflows/ci-cd-pipeline.yml`
+    - `README.md`
+    - `alembic.ini`
+    - `alembic/env.py`
+    - `app/app.py`
+    - `app/core/__init__.py`
+    - `app/core/exceptions.py`
+    - `app/core/handlers.py`
+    - `app/core/security.py`
+    - `app/crud/menu_reservations.py`
+    - `app/crud/passengers.py`
     - `app/crud/reservation_flights.py`
     - `app/crud/reservations.py`
-    - `app/crud/passengers.py`
-    - `app/crud/menu_reservations.py`
-    - `app/schemas/reservation_flights.py`
-    - `app/schemas/reservations.py`
-    - `app/schemas/passengers.py`
-    - `app/core/__init__.py`
-    - `app/core/security.py`
-    - `app/core/handlers.py`
-    - `app/core/exceptions.py`
+    - `app/database/__init__.py`
+    - `app/database/base.py`
+    - `app/database/seeder.py`
+    - `app/database/session.py`
+    - `app/endpoints/passengers.py`
+    - `app/endpoints/reservation_flights.py`
+    - `app/endpoints/reservations.py`
+    - `app/main.py`
     - `app/models/passengers.py`
     - `app/models/reservation_flights.py`
     - `app/models/reservations.py`
-    - `app/app.py`
-    - `app/main.py`
-    - `.github/workflows/ci-cd-pipeline.yml`
-    - `alembic/env.py`
-    - `alembic.ini`
-    - `README.md`
+    - `app/schemas/passengers.py`
+    - `app/schemas/reservation_flights.py`
+    - `app/schemas/reservations.py`
 
     ### Ángel David Gutiérrez Ladino — Users + Flights, responsabilidades principales:
-    - `app/models/user.py`
-    - `app/schemas/users.py`
-    - `app/endpoints/users.py`
-    - `app/crud/users.py`
-    - `app/crud/menu_users.py`
-    - `app/models/flights.py`
-    - `app/schemas/flights.py`
-    - `app/endpoints/flights.py`
-    - `app/crud/flights.py`
-    - `app/crud/menu_flights.py`
-    - `app/schemas/auth.py`
-    - `app/endpoints/auth.py`
     - `app/crud/auth.py`
-    - `app/utils/cli_utils.py`
-    - `app/services/pricing.py`
-    - `tests/test_api_logic.py`
-    - `tests/__init__.py`
-    - `docs/plan1.md`
-    - `docs/plan2.md`
-    - `app/main.py`
+    - `app/crud/flights.py`
     - `app/crud/http_client.py`
+    - `app/crud/menu_flights.py`
+    - `app/crud/menu_users.py`
+    - `app/crud/users.py`
+    - `app/endpoints/auth.py`
+    - `app/endpoints/flights.py`
+    - `app/endpoints/users.py`
+    - `app/models/flights.py`
+    - `app/models/user.py`
     - `app/schemas/__init__.py`
+    - `app/schemas/auth.py`
+    - `app/schemas/flights.py`
+    - `app/schemas/users.py`
+    - `app/services/pricing.py`
+    - `app/utils/cli_utils.py`
+    - `tests/__init__.py`
+    - `tests/test_api_logic.py`
 
     ### Nicolás Josué Grijalba Huertas — responsabilidades principales:
-    - `app/models/airlines.py`
-    - `app/schemas/airlines.py`
-    - `app/endpoints/airlines.py`
-    - `app/crud/airlines.py`
-    - `app/crud/menu_airlines.py`
-    - `app/models/airports.py`
-    - `app/schemas/airports.py`
-    - `app/endpoints/airports.py`
-    - `app/crud/airports.py`
-    - `app/crud/menu_airports.py`
-    - `app/models/__init__.py`
-    - `app/endpoints/__init__.py`
-    - `app/crud/__init__.py`
-    - `app/services/__init__.py`
-    - `app/schemas/__init__.py`
-    - `docs/workflow-git.md`
-    - `docs/flujo.md`
-    - `scripts/schema.sql`
     - `alembic/README`
     - `alembic/script.py.mako`
-    - `alembic/versions/a7f3d4c92b10_add_password_hash_to_users.py`
     - `alembic/versions/53c3ac11e09c_migracion_inicial.py`
+    - `alembic/versions/a7f3d4c92b10_add_password_hash_to_users.py`
+    - `app/crud/__init__.py`
+    - `app/crud/airlines.py`
+    - `app/crud/airports.py`
+    - `app/crud/menu_airlines.py`
+    - `app/crud/menu_airports.py`
+    - `app/endpoints/__init__.py`
+    - `app/endpoints/airlines.py`
+    - `app/endpoints/airports.py`
+    - `app/models/__init__.py`
+    - `app/models/airlines.py`
+    - `app/models/airports.py`
+    - `app/schemas/__init__.py`
+    - `app/schemas/airlines.py`
+    - `app/schemas/airports.py`
+    - `app/services/__init__.py`
+    - `docs/flujo.md`
+    - `docs/workflow-git.md`
     - `requirements.txt`
+    - `scripts/schema.sql`
 
 ## 4. Reglas de trabajo (breve)
 
