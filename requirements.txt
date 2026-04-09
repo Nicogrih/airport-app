@@ -3,6 +3,8 @@ sqlalchemy >= 2.0
 asyncpg
 python-dotenv
 pydantic
+PyJWT
+passlib[bcrypt]
 alembic
 rich
 ruff

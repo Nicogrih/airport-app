@@ -4,8 +4,10 @@ import os
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import pool
+from dotenv import load_dotenv
 
 from app.database.base import Base
+import app.models  # noqa: F401
 
 # Importar todos los modelos para que Alembic los detecte
 
@@ -13,6 +15,8 @@ from alembic import context
 
 # Objeto de configuración de Alembic
 config = context.config
+
+load_dotenv()
 
 
 # 1. OBTENER URL DE LA BASE DE DATOS (Prioridad: Variable de Entorno > alembic.ini)
