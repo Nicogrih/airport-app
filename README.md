@@ -160,6 +160,15 @@ Crea un archivo `.env` en la raíz del proyecto. Este archivo es local y **no se
 ```env
 # URL de conexión a tu base de datos de Neon
 DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME
+
+# Clave secreta para firmar JWT (obligatoria)
+JWT_SECRET_KEY=REEMPLAZAR_POR_UNA_CLAVE_LARGA_Y_SEGURA
+
+# Expiración del access token en minutos
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# Orígenes permitidos para CORS (separados por coma)
+CORS_ALLOW_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
 
 ---
@@ -199,9 +208,62 @@ uvicorn app.app:app --reload
 
 ---
 
+## Autenticación JWT (Bearer)
+
+La API usa autenticación JWT para las rutas de negocio (`/api/users`, `/api/reservations`, etc.).
+
+### 1) Login
+
+Endpoint:
+
+```text
+POST /api/auth/login
+```
+
+Se envía `username` (email) y `password` como formulario (`application/x-www-form-urlencoded`).
+
+Respuesta:
+
+```json
+{
+  "access_token": "...",
+  "token_type": "bearer",
+  "expires_in_seconds": 3600
+}
+```
+
+### 2) Uso del token
+
+Enviar el token en la cabecera:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+### 3) Usuarios de ejemplo del seeder
+
+- `admin@admin.com` / `Admin123!`
+- `gjimenez@gmail.com` / `Gerardo123!`
+- `angelgutierrez@correo.com` / `Angel123!`
+
+---
+
+## Política CORS
+
+Se configuró CORS en FastAPI con:
+
+- Orígenes explícitos leídos desde `CORS_ALLOW_ORIGINS`.
+- `allow_credentials=True`.
+- Métodos permitidos: `GET, POST, PUT, PATCH, DELETE, OPTIONS`.
+- Cabeceras permitidas: `Authorization, Content-Type, Accept`.
+
+Para producción, define solo los dominios reales del frontend en `CORS_ALLOW_ORIGINS`.
+
+---
+
 ## Pipeline de Integración Continua (CI/CD)
 
-Este proyecto incluye un pipeline de CI/CD configurado en `.github/workflows/ci.yml`.
+Este proyecto incluye un pipeline de CI/CD configurado en `.github/workflows/ci-cd-pipeline.yml`.
 
 **¿Qué hace?**
 Cada vez que se integra código en la rama `dev`, el pipeline se ejecuta automáticamente para:
@@ -211,6 +273,8 @@ Cada vez que se integra código en la rama `dev`, el pipeline se ejecuta automá
 3.  **Ejecutar las migraciones de la base de datos** con Alembic.
 4.  **Poblar la base de datos** con datos iniciales usando el seeder.
 
+El workflow solo se dispara en `push` y `pull_request` hacia `dev` (no se dispara en `qa` ni `prod`).
+
 Esto garantiza que la rama `dev` siempre se mantenga estable y funcional.
 
 ---
@@ -218,6 +282,8 @@ Esto garantiza que la rama `dev` siempre se mantenga estable y funcional.
 ## Ejecutar el menú por consola (CRUD por HTTP)
 
 El menú **consume la API** mediante llamadas HTTP (no accede directo a la base de datos).
+
+Al iniciar el CLI, primero solicita login y obtiene un JWT para consumir rutas protegidas.
 
 1. Primero levanta el servidor:
    ```bash
