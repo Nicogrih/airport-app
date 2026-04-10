@@ -50,7 +50,7 @@ El objetivo es reemplazar la creación manual de tablas (`schema.sql`) por un si
 
 4.  **Crear el Script Seeder (`seeder.py`):**
 
-    # Plan de Trabajo - Examen 2 (distribución igualitaria — actualizado 2026-04-07)
+    # Plan de Trabajo - Examen 2
 
     ## 1. Objetivo
 
