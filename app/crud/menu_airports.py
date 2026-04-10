@@ -30,6 +30,8 @@ def _handle_http_error(exc: Exception) -> None:
 
 
 def airports_menu(client: APIClient) -> None:
+    payload: dict[str, Any]
+
     while True:
         clear_screen()
         console.print("=== AEROPUERTOS ===\n")
@@ -108,7 +110,7 @@ def airports_menu(client: APIClient) -> None:
                 city = input("Ciudad (opcional): ").strip()
                 country = input("País (opcional): ").strip()
 
-                payload: dict[str, Any] = {"code": code, "name": name}
+                payload = {"code": code, "name": name}
                 if city:
                     payload["city"] = city
                 if country:
@@ -147,16 +149,18 @@ def airports_menu(client: APIClient) -> None:
                 console.print("=== Actualizar aeropuerto ===\n")
                 console.print(f"Actual: {picked.get('code')} | {picked.get('name')}\n")
 
-                code = input(
-                    f"Código [{picked.get('code')}]: "
-                ).strip().upper() or picked.get("code")
-                name = input(f"Nombre [{picked.get('name')}]: ").strip() or picked.get(
-                    "name"
+                current_code = picked.get("code") or ""
+                current_name = picked.get("name") or ""
+
+                code = (
+                    input(f"Código [{current_code}]: ").strip().upper() or current_code
                 )
+                name = input(f"Nombre [{current_name}]: ").strip() or current_name
+
                 city = input(f"Ciudad [{picked.get('city','')}]: ").strip()
                 country = input(f"País [{picked.get('country','')}]: ").strip()
 
-                payload: dict[str, Any] = {"code": code, "name": name}
+                payload = {"code": code, "name": name}
                 if city != "":
                     payload["city"] = city
                 if country != "":
