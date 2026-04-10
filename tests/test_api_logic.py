@@ -19,6 +19,7 @@ async def test_user_schema_validation():
     # 1. Caso exitoso
     user_data = {
         "email": "gerardo@example.com",
+        "password": "Gerardo123!",
         "full_name": "Gerardo Jimenez",
         "role": "CLIENT",
     }
@@ -27,7 +28,12 @@ async def test_user_schema_validation():
 
     # 2. Caso fallido: Email inválido (Pydantic debe lanzar ValidationError)
     with pytest.raises(ValidationError):
-        UserCreate(email="esto-no-es-un-email", full_name="Test", role="CLIENT")
+        UserCreate(
+            email="esto-no-es-un-email",
+            password="Gerardo123!",
+            full_name="Test",
+            role="CLIENT",
+        )
 
 
 @pytest.mark.asyncio
@@ -37,6 +43,7 @@ async def test_create_user_model_logic():
     new_user = User(
         id=user_id,
         email=f"test_{user_id.hex[:6]}@example.com",
+        password_hash="fake_hash_for_test",
         full_name="Gerardo Test",
         role="CLIENT",
     )
