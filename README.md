@@ -14,7 +14,7 @@ Proyecto académico para un sistema de reservas de vuelos.
 
 ## Video de Demostración del Pipeline
 
-**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://www.youtube.com/)
+**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://drive.google.com/drive/folders/1u-2K7V3rKAXLckZjtVTkr_3dIFhtDSVh?usp=sharing)
 
 ---
 
@@ -107,6 +107,9 @@ airport-app/
 │   └── main.py                     # Punto de entrada principal
 ├── scripts/
 │   └── schema.sql                  # Script SQL inicial de la base de datos
+├── tests/                          # Pruebas unitarias de lógica
+│   └── __init__.py
+│   └── test_api_logic.py
 ├── .gitignore
 ├── alembic.ini                     # Archivo de configuración de Alembic
 ├── requirements.txt                # Dependencias (FastAPI, SQLAlchemy, Ruff, etc.)
@@ -272,4 +275,12 @@ Regla clave: **todo cambio entra por PR**.
 
 ## Licencia
 
-Uso académico.
+Este proyecto se distribuye bajo la **Licencia MIT**.
+
+**Copyright (c) 2026 - Ángel Gutiérrez, Gerardo Jiménez, Nicolás Grijalba.**
+
+Se otorga permiso por la presente, de forma gratuita, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados, para utilizar el Software con fines estrictamente académicos, incluyendo sin limitación los derechos de usar, copiar, modificar, fusionar y publicar copias del Software, sujeto a las siguientes condiciones:
+
+1. El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
+2. **EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA.**
+3. El uso de este software es para fines de aprendizaje en el curso de Aplicación y Servicios Web 2026-1.

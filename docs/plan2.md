@@ -1,4 +1,4 @@
-# Plan de Trabajo - Entrega Final (28 de Marzo)
+# Plan de Trabajo - Entrega Final (11 de Abril)
 
 ## 1. Objetivo y Equipo
 
@@ -49,137 +49,90 @@ El objetivo es reemplazar la creación manual de tablas (`schema.sql`) por un si
     - Revisar el archivo de migración generado en `alembic/versions/`. Este archivo contiene el código Python para crear todas las tablas.
 
 4.  **Crear el Script Seeder (`seeder.py`):**
-    - Crear un nuevo archivo `app/database/seeder.py`.
-    - Este script debe ser **idempotente**: si los datos ya existen, no debe fallar ni duplicarlos.
-      - Ejemplo: "Si no existe un usuario admin, créalo".
-    - Poblar datos iniciales como catálogos (aerolíneas, aeropuertos si aplica) y un usuario por defecto.
 
-5.  **Crear Scripts de Ejecución:**
-    - Modificar el `README.md` para añadir los nuevos comandos para la base de datos:
-      - `alembic upgrade head` (Aplica todas las migraciones).
-      - `python -m app.database.seeder` (Ejecuta el poblado de datos).
+    # Plan de Trabajo - Examen 2 (distribución igualitaria — actualizado 2026-04-07)
 
----
+    ## 1. Objetivo
 
-### **Tarea Principal 2: Carpeta `core` y Manejo Centralizado de Errores**
+    Entregar el proyecto del Examen 2 (sin incluir el video). Este plan aplica la distribución vertical (cada integrante desarrolla una vertical completa) para asegurar carga de trabajo equivalente y aprendizaje práctico.
 
-- **Responsable:** Nicolás Josué Grijalba Huertas
-- **Rama Git:** `feat/core-error-handling`
+    ## 2. Principio de distribución
+    - Todos implementan una vertical completa: modelos, esquemas, endpoints, CRUD, pruebas unitarias y CLI para su entidad.
+    - Única excepción: Gerardo (Integrador) también implementa JWT y CORS y coordina CI/CD.
+    - Migraciones y `seeder` son colaborativos: cada quien genera las migraciones para sus cambios y añade sus datos seed en `app/database/seeder.py`. El Integrador ejecuta las migraciones en CI.
 
-El objetivo es estandarizar las respuestas de error de la API para que sean consistentes y manejadas desde un lugar central.
+    ## 3. Asignación por persona (verticales)
 
-**Pasos detallados:**
+    ### Nicolás Josué Grijalba Huertas — responsabilidades principales:
+    - `alembic.ini`
+    - `alembic/env.py`
+    - `alembic/README`
+    - `alembic/script.py.mako`
+    - `alembic/versions/53c3ac11e09c_migracion_inicial.py`
+    - `alembic/versions/a7f3d4c92b10_add_password_hash_to_users.py`
+    - `app/crud/airlines.py`
+    - `app/crud/airports.py`
+    - `app/crud/menu_airlines.py`
+    - `app/crud/menu_airports.py`
+    - `app/endpoints/airlines.py`
+    - `app/endpoints/airports.py`
+    - `app/models/airlines.py`
+    - `app/models/airports.py`
+    - `app/schemas/airlines.py`
+    - `app/schemas/airports.py`
+    - `requirements.txt`
 
-1.  **Crear la Estructura:**
-    - Crear una nueva carpeta: `app/core/`.
-    - Dentro, crear dos archivos: `app/core/exceptions.py` y `app/core/handlers.py`.
+    ### Ángel David Gutiérrez Ladino — Users + Flights, responsabilidades principales:
+    - `app/crud/auth.py`
+    - `app/crud/flights.py`
+    - `app/crud/http_client.py`
+    - `app/crud/menu_flights.py`
+    - `app/crud/menu_users.py`
+    - `app/crud/users.py`
+    - `app/endpoints/auth.py`
+    - `app/endpoints/flights.py`
+    - `app/endpoints/users.py`
+    - `app/models/flights.py`
+    - `app/models/user.py`
+    - `app/schemas/auth.py`
+    - `app/schemas/flights.py`
+    - `app/schemas/users.py`
+    - `tests/test_api_logic.py`
 
-2.  **Definir Excepciones Personalizadas (`exceptions.py`):**
-    - En `app/core/exceptions.py`, crear clases de excepción que hereden de `Exception`. Esto hace el código más legible.
-    - Ejemplos:
+    ### Gerardo Andrés Jiménez Piedrahíta — Integrador, responsabilidades principales:
+    - `.github/workflows/ci-cd-pipeline.yml`
+    - `README.md`
+    - `app/app.py`
+    - `app/core/exceptions.py`
+    - `app/core/handlers.py`
+    - `app/core/security.py`
+    - `app/crud/menu_reservations.py`
+    - `app/crud/passengers.py`
+    - `app/crud/reservation_flights.py`
+    - `app/crud/reservations.py`
+    - `app/database/base.py`
+    - `app/database/seeder.py`
+    - `app/database/session.py`
+    - `app/endpoints/passengers.py`
+    - `app/endpoints/reservation_flights.py`
+    - `app/endpoints/reservations.py`
+    - `app/main.py`
+    - `app/models/passengers.py`
+    - `app/models/reservation_flights.py`
+    - `app/models/reservations.py`
+    - `app/schemas/passengers.py`
+    - `app/schemas/reservation_flights.py`
+    - `app/schemas/reservations.py`
+    - `app/services/pricing.py`
+    - `app/utils/cli_utils.py`
 
-      ```python
-      class NotFoundError(Exception):
-          pass
+## 4. Reglas de trabajo (breve)
 
-      class ConflictError(Exception):
-          pass
-      ```
-
-3.  **Crear Manejadores Globales (`handlers.py`):**
-    - En `app/core/handlers.py`, crear funciones que capturen tus excepciones personalizadas y devuelvan una `JSONResponse` de FastAPI con el código de estado y mensaje correctos.
-
-      ```python
-      from fastapi import Request
-      from fastapi.responses import JSONResponse
-      from .exceptions import NotFoundError
-
-      async def not_found_exception_handler(request: Request, exc: NotFoundError):
-          return JSONResponse(
-              status_code=404,
-              content={"message": str(exc)},
-          )
-      ```
-
-    - Hacer lo mismo para `ConflictError` (409), `ValueError` (400), etc.
-
-4.  **Integrar en la App de FastAPI:**
-    - En `app/app.py`, importar los manejadores y las excepciones, y registrarlos en la aplicación FastAPI.
-
-      ```python
-      from app.core.exceptions import NotFoundError, ConflictError
-      from app.core.handlers import not_found_exception_handler, conflict_exception_handler
-
-      app = FastAPI(...)
-
-      app.add_exception_handler(NotFoundError, not_found_exception_handler)
-      app.add_exception_handler(ConflictError, conflict_exception_handler)
-      ```
-
-5.  **Refactorizar Endpoints:**
-    - Ir a los archivos en `app/endpoints/` y reemplazar la lógica de error actual (ej. `raise HTTPException`) por las nuevas excepciones.
-      - **Antes:** `raise HTTPException(status_code=404, detail="...")`
-      - **Ahora:** `raise NotFoundError("...")`
-
----
-
-### **Tarea Principal 3: Pipeline CI/CD con GitHub Actions**
-
-- **Responsable:** Gerardo Andrés Jiménez Piedrahíta
-- **Rama Git:** `feat/ci-cd-pipeline`
-
-El objetivo es automatizar la verificación de calidad, pruebas, y la sincronización con la base de datos cada vez que se integra código en la rama `dev`.
-
-**Pasos detallados:**
-
-1.  **Crear Estructura para Workflow:**
-    - Crear la ruta de carpetas: `.github/workflows/`.
-    - Dentro, crear un archivo: `ci.yml`.
-
-2.  **Definir el Disparador (Trigger):**
-    - En `ci.yml`, configurar el pipeline para que se ejecute solo en `push` o `pull_request` a la rama `dev`.
-
-      ```yaml
-      name: CI Pipeline
-
-      on:
-        push:
-          branches: [dev]
-        pull_request:
-          branches: [dev]
-      ```
-
-3.  **Configurar los Pasos (Jobs):**
-    - Definir un `job` llamado `build` que se ejecute en un `ubuntu-latest`.
-    - Añadir los siguientes `steps`:
-      a. **Checkout:** `actions/checkout@v3` para obtener el código.
-      b. **Setup Python:** `actions/setup-python@v4` para instalar la versión correcta de Python.
-      c. **Install Dependencies:** `pip install -r requirements.txt`.
-      d. **Linting:** `pip install ruff && ruff check .` para verificar el formato del código.
-      e. **Database Sync:** - **Ejecutar Migraciones:** `alembic upgrade head`. Para esto, necesitas la variable de entorno `DATABASE_URL`. - **Ejecutar Seeder:** `python -m app.database.seeder`. - **Importante:** Configurar la variable `DATABASE_URL` como un **secret** en la configuración del repositorio de GitHub (`Settings > Secrets and variables > Actions`) para que el pipeline pueda conectarse a la base de datos de Neon de forma segura.
-
-    - **Ejemplo del paso de migración en `ci.yml`:**
-      ```yaml
-      - name: Run Database Migrations
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: alembic upgrade head
-      ```
-
----
-
-## 4. Integración, Video y Entrega
-
-- **Fecha Límite:** Viernes 27 de Marzo (para tener margen antes de la entrega final el Sábado 28).
-
-**Plan de Integración:**
-
-1.  **Pull Requests Individuales:** Cada integrante debe crear un Pull Request (PR) de su rama de funcionalidad (`feat/...`) hacia la rama `dev`.
-2.  **Revisión Cruzada:** Revisen los PRs de sus compañeros. Es una buena práctica y parte de la evaluación.
-3.  **Merge a `dev`:** Una vez que los PRs estén aprobados, hacer merge. El pipeline de Gerardo debería ejecutarse automáticamente. Si falla, arréglenlo en equipo.
-4.  **Grabación del Video:** Con el pipeline funcionando, graben el video mostrando:
-    - El código del archivo `ci-cd-pipeline.yml`.
-    - La ejecución exitosa del pipeline en la pestaña "Actions" de GitHub, explicando cada paso (linting, migraciones, seeder).
-    - Una prueba de que los cambios en la BD se aplicaron (ej. mostrando los datos del seeder en la consola de Neon).
-5.  **Actualizar `README.md`:** Añadir el enlace al video y cualquier nueva instrucción.
-6.  **PR Final:** Crear el PR final `dev -> qa -> prod` como lo indica su flujo de trabajo.
+- Cada integrante crea un único branch feature para subir su parte: `feat/<task>` (task en inglés).
+- Branch por integrante (usar exactamente estos nombres al crear la rama):
+  - Gerardo: `feat/booking-engine-and-cicd`
+  - Ángel: `feat/auth-and-flight-services`
+  - Nicolás: `feat/infrastructure-and-catalogs`
+- Reglas de nomenclatura: minúsculas, usar guiones (`-`), sin espacios.
+- Empuja la rama y abre un PR hacia `dev`. El Integrador (`Gerardo`) hará merge después de que CI pase y haya al menos una aprobación.
+- Si se cambian los modelos, se debe genera una migración de Alembic (`alembic revision --autogenerate`) y se añade los seeds a `app/database/seeder.py`.
