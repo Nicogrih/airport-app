@@ -18,6 +18,9 @@ class User(Base):
         UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
     )
     email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(
+        Text, nullable=False, default="DISABLED_PASSWORD_HASH"
+    )
     full_name: Mapped[str] = mapped_column(Text, nullable=False)
     role: Mapped[str] = mapped_column(String(16), nullable=False, default="CLIENT")
     created_at: Mapped[DateTime] = mapped_column(

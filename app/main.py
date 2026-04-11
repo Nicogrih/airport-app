@@ -65,7 +65,7 @@ def main() -> None:
                 return
             if op == "1":
                 airlines_menu(client)
-            if op == "2":
+            elif op == "2":
                 airports_menu(client)
             elif op == "3":
                 flights_menu(client)
