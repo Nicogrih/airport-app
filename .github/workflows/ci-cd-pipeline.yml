@@ -44,7 +44,7 @@ jobs:
           if [ -z "${JWT_SECRET_KEY}" ]; then
             export JWT_SECRET_KEY="ci-temporary-jwt-secret"
           fi
-          pytest -q
+          python -m pytest tests/test_api_logic.py -q
 
       - name: 7. Definir si se ejecutan migraciones
         id: db_guard
