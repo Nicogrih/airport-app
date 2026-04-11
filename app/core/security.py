@@ -1,18 +1,18 @@
 import os
+import hashlib
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
+import bcrypt
 import jwt
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import UnauthorizedError
 from app.database.session import get_db
 from app.models.user import User
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 JWT_ALGORITHM = "HS256"
@@ -42,15 +42,28 @@ def _get_jwt_secret_key() -> str:
     return secret
 
 
+def _normalize_password(plain_password: str) -> bytes:
+    data = plain_password.encode("utf-8")
+    if len(data) > 72:
+        # bcrypt max password length; pre-hash for safety.
+        data = hashlib.sha256(data).digest()
+    return data
+
+
 def hash_password(plain_password: str) -> str:
-    return pwd_context.hash(plain_password)
+    if not plain_password:
+        return ""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(_normalize_password(plain_password), salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, password_hash: str) -> bool:
-    if not password_hash:
+    if not plain_password or not password_hash:
         return False
     try:
-        return pwd_context.verify(plain_password, password_hash)
+        return bcrypt.checkpw(
+            _normalize_password(plain_password), password_hash.encode("utf-8")
+        )
     except Exception:
         return False
 
