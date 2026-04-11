@@ -14,7 +14,7 @@ Proyecto académico para un sistema de reservas de vuelos.
 
 ## Video de Demostración del Pipeline
 
-**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://drive.google.com/drive/folders/1u-2K7V3rKAXLckZjtVTkr_3dIFhtDSVh?usp=sharing)
+**Enlace al video:** [Ver demostración del Pipeline y Base de Datos](https://drive.google.com/drive/folders/1KYtcd8QQmEFBM5yW6_rlLVSvHhm2ye2Y?usp=sharing)
 
 ---
 
@@ -30,6 +30,7 @@ Proyecto académico para un sistema de reservas de vuelos.
 
 Entidades (CRUD):
 
+- `auth` → `/api/auth/login` (JWT)
 - `users` → `/api/users`
 - `reservations` → `/api/reservations`
 - `airlines` → `/api/airlines`
@@ -56,7 +57,9 @@ airport-app/
 │   ├── core/                       # Lógica central del sistema
 │   │   ├── exceptions.py           # Definición de excepciones personalizadas
 │   │   └── handlers.py             # Manejadores de errores
+│   │   └── security.py             # JWT y hashing de passwords
 │   ├── crud/                       # Lógica de acceso a datos (Create, Read, Update, Delete)
+│   │   ├── auth.py
 │   │   ├── airlines.py
 │   │   ├── airports.py
 │   │   ├── flights.py
@@ -72,8 +75,10 @@ airport-app/
 │   │   └── users.py
 │   ├── database/                   # Configuración de la conexión a la BD
 │   │   ├── base.py                 # Declarative base para modelos
+│   │   ├── seeder.py               # Inserción de datos iniciales
 │   │   └── session.py              # Gestión de sesiones (SQLAlchemy)
 │   ├── endpoints/                  # Rutas de la API (Controllers)
+│   │   ├── auth.py
 │   │   ├── airlines.py
 │   │   ├── airports.py
 │   │   ├── flights.py
@@ -91,6 +96,7 @@ airport-app/
 │   │   ├── reservations.py
 │   │   └── user.py
 │   ├── schemas/                    # Modelos de Pydantic (Validación de datos)
+│   │   ├── auth.py
 │   │   ├── airlines.py
 │   │   ├── airports.py
 │   │   ├── flights.py
@@ -120,7 +126,7 @@ airport-app/
 
 ## Requisitos
 
-- Python **3.11+** (recomendado)
+- Python **3.11+** (probado en 3.11 y 3.14.4)
 - Git
 - VS Code
 - Cuenta y base de datos en **Neon** (PostgreSQL)
@@ -140,6 +146,8 @@ cd airport-app
 
 ```bash
 py -m venv .venv
+# Si tienes varias versiones instaladas, especifica la que vas a usar:
+# py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -159,7 +167,20 @@ Crea un archivo `.env` en la raíz del proyecto. Este archivo es local y **no se
 
 ```env
 # URL de conexión a tu base de datos de Neon
-DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST/DBNAME
+# Puedes usar la URL directa de Neon; el proyecto limpia sslmode/channel_binding.
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
+
+# Clave secreta para firmar JWT (obligatoria)
+JWT_SECRET_KEY=REEMPLAZAR_POR_UNA_CLAVE_LARGA_Y_SEGURA
+
+# Expiración del access token en minutos
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# Orígenes permitidos para CORS (separados por coma)
+CORS_ALLOW_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# Base URL para el CLI (opcional)
+API_BASE_URL=http://127.0.0.1:8000
 ```
 
 ---
@@ -199,9 +220,62 @@ uvicorn app.app:app --reload
 
 ---
 
+## Autenticación JWT (Bearer)
+
+La API usa autenticación JWT para las rutas de negocio (`/api/users`, `/api/reservations`, etc.).
+
+### 1) Login
+
+Endpoint:
+
+```text
+POST /api/auth/login
+```
+
+Se envía `username` (email) y `password` como formulario (`application/x-www-form-urlencoded`).
+
+Respuesta:
+
+```json
+{
+  "access_token": "...",
+  "token_type": "bearer",
+  "expires_in_seconds": 3600
+}
+```
+
+### 2) Uso del token
+
+Enviar el token en la cabecera:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+### 3) Usuarios de ejemplo del seeder
+
+- `admin@admin.com` / `Admin123!`
+- `gjimenez@gmail.com` / `Gerardo123!`
+- `angelgutierrez@correo.com` / `Angel123!`
+
+---
+
+## Política CORS
+
+Se configuró CORS en FastAPI con:
+
+- Orígenes explícitos leídos desde `CORS_ALLOW_ORIGINS`.
+- `allow_credentials=True`.
+- Métodos permitidos: `GET, POST, PUT, PATCH, DELETE, OPTIONS`.
+- Cabeceras permitidas: `Authorization, Content-Type, Accept`.
+
+Para producción, define solo los dominios reales del frontend en `CORS_ALLOW_ORIGINS`.
+
+---
+
 ## Pipeline de Integración Continua (CI/CD)
 
-Este proyecto incluye un pipeline de CI/CD configurado en `.github/workflows/ci.yml`.
+Este proyecto incluye un pipeline de CI/CD configurado en `.github/workflows/ci-cd-pipeline.yml`.
 
 **¿Qué hace?**
 Cada vez que se integra código en la rama `dev`, el pipeline se ejecuta automáticamente para:
@@ -211,13 +285,22 @@ Cada vez que se integra código en la rama `dev`, el pipeline se ejecuta automá
 3.  **Ejecutar las migraciones de la base de datos** con Alembic.
 4.  **Poblar la base de datos** con datos iniciales usando el seeder.
 
+El workflow solo se dispara en `push` y `pull_request` hacia `dev` (no se dispara en `qa` ni `prod`).
+
 Esto garantiza que la rama `dev` siempre se mantenga estable y funcional.
+
+**Secrets requeridos en GitHub Actions:**
+
+- `DATABASE_URL`
+- `JWT_SECRET_KEY`
 
 ---
 
 ## Ejecutar el menú por consola (CRUD por HTTP)
 
 El menú **consume la API** mediante llamadas HTTP (no accede directo a la base de datos).
+
+Al iniciar el CLI, primero solicita login y obtiene un JWT para consumir rutas protegidas.
 
 1. Primero levanta el servidor:
    ```bash

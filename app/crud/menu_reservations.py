@@ -443,6 +443,8 @@ def _manage_reservation(client: APIClient, reservation_id: str) -> None:
 
 
 def reservations_menu(client: APIClient) -> None:
+    pretty_rows: list[dict[str, Any]]
+
     while True:
         clear_screen()
         console.print("=== RESERVAS (Flujo de compra) ===\n")
@@ -462,7 +464,7 @@ def reservations_menu(client: APIClient) -> None:
                 rows = list_reservations(client)
                 u_map = _users_map(client)
 
-                pretty_rows: list[dict[str, Any]] = []
+                pretty_rows = []
                 for r in rows:
                     rr = dict(r)
                     rr["user_display"] = _user_label(u_map, str(r["user_id"]))
@@ -499,7 +501,7 @@ def reservations_menu(client: APIClient) -> None:
                 u_map = _users_map(client)
 
                 # Tabla con usuario humano
-                pretty_rows: list[dict[str, Any]] = []
+                pretty_rows = []
                 for r in rows:
                     rr = dict(r)
                     rr["user_display"] = _user_label(u_map, str(r["user_id"]))

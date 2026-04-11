@@ -27,3 +27,10 @@ class ValidationError(AppError):
 
     def __init__(self, message: str = "Validation error"):
         super().__init__(message, "VALIDATION_ERROR", 400)
+
+
+class UnauthorizedError(AppError):
+    """Lanzada cuando una solicitud requiere autenticacion valida"""
+
+    def __init__(self, message: str = "Unauthorized"):
+        super().__init__(message, "UNAUTHORIZED", 401)

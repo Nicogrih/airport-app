@@ -1,11 +1,14 @@
 from logging.config import fileConfig
 import asyncio
 import os
+import urllib.parse
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import pool
+from dotenv import load_dotenv
 
 from app.database.base import Base
+import app.models  # noqa: F401
 
 # Importar todos los modelos para que Alembic los detecte
 
@@ -13,6 +16,8 @@ from alembic import context
 
 # Objeto de configuración de Alembic
 config = context.config
+
+load_dotenv()
 
 
 # 1. OBTENER URL DE LA BASE DE DATOS (Prioridad: Variable de Entorno > alembic.ini)
@@ -24,25 +29,30 @@ def get_url():
 
 
 def clean_url_for_asyncpg(url):
-    """Asegura que la URL use el driver asyncpg."""
+    """Asegura que la URL use el driver asyncpg y limpia parametros no soportados."""
     if not url:
         return None
 
-    # 1. Asegurar el driver asíncrono
     if "postgresql://" in url:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-    # 2. LIMPIEZA CRÍTICA: asyncpg NO acepta 'sslmode' en el string
-    # Si la URL viene de Neon con ?sslmode=require, lo quitamos
-    if "sslmode=" in url:
-        import re
+    parsed = urllib.parse.urlparse(url)
+    query_params = urllib.parse.parse_qsl(parsed.query)
+    filtered_params = [
+        (k, v) for k, v in query_params if k not in ("sslmode", "channel_binding")
+    ]
+    new_query = urllib.parse.urlencode(filtered_params)
 
-        # Esto elimina ?sslmode=... o &sslmode=...
-        url = re.sub(r"([?&])sslmode=[^&]*", "", url)
-        # Limpiar si quedó un '?' al final sin parámetros
-        url = url.rstrip("?")
-
-    return url
+    return urllib.parse.urlunparse(
+        (
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            parsed.fragment,
+        )
+    )
 
 
 # Configurar el registro (logging)

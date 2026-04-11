@@ -3,6 +3,7 @@ import asyncio
 import uuid
 
 from app.database.session import AsyncSessionLocal
+from app.core.security import hash_password
 from app.models.user import User
 from app.models.airlines import Airline
 from app.models.airports import Airport
@@ -18,16 +19,19 @@ async def seed_users():
             users_data = [
                 {
                     "email": "admin@admin.com",
+                    "password": "Admin123!",
                     "full_name": "Administrador",
                     "role": "ADMIN",
                 },
                 {
-                    "email": "gjimenez@gmail.com",
+                    "email": "gjimenez@correo.com",
+                    "password": "Gerardo123!",
                     "full_name": "Gerardo Jiménez",
-                    "role": "ADMIN",
+                    "role": "CLIENT",
                 },
                 {
                     "email": "angelgutierrez@correo.com",
+                    "password": "Angel123!",
                     "full_name": "Angel",
                     "role": "CLIENT",
                 },
@@ -43,12 +47,22 @@ async def seed_users():
                     new_user = User(
                         id=uuid.uuid4(),
                         email=user_data["email"],
+                        password_hash=hash_password(user_data["password"]),
                         full_name=user_data["full_name"],
                         role=user_data["role"],
                     )
                     db.add(new_user)
                     print(f"Usuario {user_data['email']} creado")
                 else:
+                    # Si el usuario viene de una version sin password_hash, lo repara.
+                    if (
+                        not user.password_hash
+                        or user.password_hash == "DISABLED_PASSWORD_HASH"
+                    ):
+                        user.password_hash = hash_password(user_data["password"])
+                        print(
+                            f"Usuario {user_data['email']} actualizado con password_hash"
+                        )
                     print(f"Usuario {user_data['email']} ya existe")
 
             await db.commit()

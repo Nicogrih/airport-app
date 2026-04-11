@@ -11,8 +11,10 @@ def register_error_handlers(app: FastAPI):
 
     @app.exception_handler(AppError)
     async def handle_app_error(request: Request, exc: AppError):
+        headers = {"WWW-Authenticate": "Bearer"} if exc.status_code == 401 else None
         return JSONResponse(
             status_code=exc.status_code,
+            headers=headers,
             content={
                 "error": {
                     "code": exc.code,

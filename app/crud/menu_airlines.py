@@ -30,6 +30,8 @@ def _handle_http_error(exc: Exception) -> None:
 
 
 def airlines_menu(client: APIClient) -> None:
+    payload: dict[str, Any]
+
     while True:
         clear_screen()
         console.print("=== AEROLÍNEAS ===\n")
@@ -105,7 +107,7 @@ def airlines_menu(client: APIClient) -> None:
                 name = input("Nombre (ej: Avianca): ").strip()
                 country = input("País (opcional): ").strip()
 
-                payload: dict[str, Any] = {"code": code, "name": name}
+                payload = {"code": code, "name": name}
                 if country:
                     payload["country"] = country
 
@@ -143,15 +145,16 @@ def airlines_menu(client: APIClient) -> None:
                 console.print("deja en blanco para mantener el valor actual\n")
                 console.print(f"Actual: {picked.get('code')} | {picked.get('name')}\n")
 
-                code = input(f"Código [{picked.get('code')}]: ").strip() or picked.get(
-                    "code"
+                current_code = picked.get("code") or ""
+                current_name = picked.get("name") or ""
+
+                code = (
+                    input(f"Código [{current_code}]: ").strip().upper() or current_code
                 )
-                name = input(f"Nombre [{picked.get('name')}]: ").strip() or picked.get(
-                    "name"
-                )
+                name = input(f"Nombre [{current_name}]: ").strip() or current_name
                 country = input(f"País [{picked.get('country','')}]: ").strip()
 
-                payload: dict[str, Any] = {"code": code, "name": name}
+                payload = {"code": code, "name": name}
                 if country != "":
                     payload["country"] = country
 
