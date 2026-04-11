@@ -126,7 +126,7 @@ airport-app/
 
 ## Requisitos
 
-- Python **3.14.4**
+- Python **3.11+** (probado en 3.11 y 3.14.4)
 - Git
 - VS Code
 - Cuenta y base de datos en **Neon** (PostgreSQL)

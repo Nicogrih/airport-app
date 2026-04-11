@@ -24,10 +24,10 @@ async def seed_users():
                     "role": "ADMIN",
                 },
                 {
-                    "email": "gjimenez@gmail.com",
+                    "email": "gjimenez@correo.com",
                     "password": "Gerardo123!",
                     "full_name": "Gerardo Jiménez",
-                    "role": "ADMIN",
+                    "role": "CLIENT",
                 },
                 {
                     "email": "angelgutierrez@correo.com",
